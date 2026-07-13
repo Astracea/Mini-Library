@@ -6,1941 +6,935 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#ffb8c6">
-    <title>🌸 My Binge List 🌸</title>
+    <title>🐰 BingeBean</title>
     <style>
         :root {
             --pink: #ffb8c6;
-            --pink-light: #ffe0e6;
+            --pink-light: #ffe8ee;
             --pink-dark: #f08a9e;
             --purple: #d4b8ff;
-            --purple-light: #ede0ff;
-            --blue: #b8d4ff;
-            --blue-light: #e0eeff;
-            --mint: #b8ffd4;
-            --mint-light: #e0ffee;
-            --yellow: #fff3b8;
-            --peach: #ffd4b8;
+            --purple-light: #f0e8ff;
             --bg: #fff5f7;
             --card: #ffffff;
             --text: #5a4a5a;
-            --text-light: #8a7a8a;
-            --shadow: 0 4px 15px rgba(255, 184, 198, 0.25);
-            --shadow-hover: 0 8px 25px rgba(255, 184, 198, 0.4);
-            --radius: 20px;
-            --radius-sm: 14px;
-            --radius-xs: 10px;
+            --text-light: #9a8a9a;
+            --shadow: 0 3px 12px rgba(255,184,198,0.2);
+            --radius: 22px;
+            --radius-sm: 16px;
+            --radius-xs: 12px;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-user-select: none;
-            user-select: none;
+        body.dark {
+            --bg: #1a1a2e;
+            --card: #252540;
+            --text: #e0dce8;
+            --text-light: #a098b8;
+            --pink-light: #2a2030;
+            --shadow: 0 3px 12px rgba(0,0,0,0.3);
+            --purple-light: #2a2540;
         }
+        body.dark .entry-card { border-color: #333; }
+        body.dark input, body.dark select, body.dark textarea { background:#1a1a30; color:#e0dce8; border-color:#3a3a50; }
+        body.dark .modal { border-color:#444; }
 
-        html {
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            overflow-y: scroll;
-            height: 100%;
-        }
-
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; -webkit-user-select:none; user-select:none; }
+        html { scroll-behavior:smooth; -webkit-overflow-scrolling:touch; height:100%; }
         body {
-            font-family: 'Segoe UI', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            min-height: 100dvh;
-            background-image:
-                radial-gradient(ellipse at 15% 10%, rgba(255, 184, 198, 0.2) 0%, transparent 50%),
-                radial-gradient(ellipse at 85% 85%, rgba(212, 184, 255, 0.2) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(184, 212, 255, 0.12) 0%, transparent 50%);
-            overscroll-behavior: contain;
-            position: relative;
-            overflow-x: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Poppins', sans-serif;
+            background: var(--bg); color: var(--text);
+            min-height: 100vh; min-height: 100dvh;
+            background-image: radial-gradient(ellipse at 20% 5%, rgba(255,184,198,0.12) 0%, transparent 50%), radial-gradient(ellipse at 80% 90%, rgba(212,184,255,0.12) 0%, transparent 50%);
+            overscroll-behavior: contain; overflow-x: hidden;
+            transition: background 0.4s, color 0.4s;
+            padding-bottom: env(safe-area-inset-bottom);
         }
+        #petalsCanvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+        #sparkleContainer { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:999; }
+        .sparkle-particle { position:absolute; pointer-events:none; animation:sparkleFloat 0.9s ease-out forwards; }
+        @keyframes sparkleFloat { 0%{opacity:1;transform:translate(0,0) scale(1) rotate(0deg)} 100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0) rotate(360deg)} }
+        .heart-burst { position:fixed; pointer-events:none; z-index:997; animation:heartPop 0.7s ease-out forwards; }
+        @keyframes heartPop { 0%{opacity:1;transform:translate(0,0) scale(0)} 50%{opacity:1;transform:translate(0,-18px) scale(1.4)} 100%{opacity:0;transform:translate(0,-50px) scale(0.8)} }
+        .confetti-piece { position:fixed; pointer-events:none; z-index:998; animation:confettiFall 2.2s ease-out forwards; }
+        @keyframes confettiFall { 0%{opacity:1;transform:translateY(-80px) rotate(0deg) scale(1)} 100%{opacity:0;transform:translateY(105vh) rotate(600deg) scale(0.2)} }
 
-        /* 🌸 Falling Petals Canvas */
-        #petalsCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
+        .app-container { max-width:500px; margin:0 auto; padding:10px 12px 100px; position:relative; z-index:1; }
+        .top-bar { display:flex; align-items:center; justify-content:flex-end; gap:6px; padding:4px 0 0; }
+        .icon-btn { width:34px; height:34px; border-radius:50%; border:2px solid var(--pink-light); background:var(--card); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow); transition:all 0.15s; }
+        .icon-btn:active { transform:scale(0.85); background:var(--pink-light); }
 
-        /* ✨ Sparkle Container */
-        #sparkleContainer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 999;
-        }
+        .header { text-align:center; padding:6px 0 2px; }
+        .mascot { font-size:40px; display:inline-block; animation:softBounce 3s ease-in-out infinite; cursor:pointer; }
+        .mascot:active { transform:scale(1.2) rotate(10deg); }
+        @keyframes softBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+        .header h1 { font-size:20px; background:linear-gradient(135deg,var(--pink-dark),#c9a0dc); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:800; }
+        .subtitle { font-size:10px; color:var(--text-light); letter-spacing:0.4px; }
+        .streak-badge { display:inline-block; background:#fff8e0; color:#b87820; padding:4px 12px; border-radius:18px; font-size:10px; font-weight:700; margin-top:4px; border:2px solid #ffe8a0; animation:gentleGlow 2.5s ease-in-out infinite; }
+        @keyframes gentleGlow { 0%,100%{box-shadow:0 0 0 0 rgba(255,200,100,0.4)} 50%{box-shadow:0 0 0 8px rgba(255,200,100,0)} }
 
-        .sparkle-particle {
-            position: absolute;
-            pointer-events: none;
-            animation: sparkleFloat 1s ease-out forwards;
-            font-size: 16px;
-        }
-        @keyframes sparkleFloat {
-            0% {
-                opacity: 1;
-                transform: translate(0, 0) scale(1) rotate(0deg);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(var(--dx), var(--dy)) scale(0) rotate(360deg);
-            }
-        }
+        .divider { text-align:center; margin:6px 0; font-size:11px; letter-spacing:4px; color:var(--pink-dark); opacity:0.5; }
 
-        /* 🎀 Confetti */
-        .confetti-piece {
-            position: fixed;
-            pointer-events: none;
-            z-index: 998;
-            animation: confettiFall 2s ease-out forwards;
-            font-size: 20px;
-        }
-        @keyframes confettiFall {
-            0% {
-                opacity: 1;
-                transform: translateY(-100px) rotate(0deg) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(105vh) rotate(720deg) scale(0.3);
-            }
-        }
+        .stats-row { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-bottom:8px; }
+        .stat-chip { background:var(--card); padding:6px 11px; border-radius:16px; font-size:10px; font-weight:600; box-shadow:var(--shadow); border:1.5px solid var(--pink-light); display:flex; align-items:center; gap:4px; }
+        .stat-num { font-size:14px; font-weight:800; color:var(--pink-dark); }
 
-        /* 💖 Heart Burst */
-        .heart-burst {
-            position: fixed;
-            pointer-events: none;
-            z-index: 997;
-            animation: heartPop 0.8s ease-out forwards;
-            font-size: 24px;
-        }
-        @keyframes heartPop {
-            0% {
-                opacity: 1;
-                transform: translate(0, 0) scale(0);
-            }
-            50% {
-                opacity: 1;
-                transform: translate(0, -20px) scale(1.5);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(0, -60px) scale(1);
-            }
-        }
+        .util-row { display:flex; gap:5px; justify-content:center; flex-wrap:wrap; margin-bottom:8px; }
+        .util-btn { padding:6px 11px; border-radius:16px; border:1.5px solid var(--pink-light); background:var(--card); font-size:10px; cursor:pointer; font-weight:600; color:var(--text); box-shadow:var(--shadow); white-space:nowrap; transition:all 0.15s; }
+        .util-btn:active { transform:scale(0.92); background:var(--pink-light); }
+        .util-btn.accent { background:#fff8e0; border-color:#ffe8a0; color:#b87820; }
 
-        .app-container {
-            max-width: 680px;
-            margin: 0 auto;
-            padding: 12px;
-            padding-bottom: 100px;
-            -webkit-overflow-scrolling: touch;
-            position: relative;
-            z-index: 1;
-        }
+        /* Compact search row - icon style with text */
+        .search-row { display:flex; gap:5px; margin-bottom:8px; flex-wrap:wrap; align-items:center; }
+        .search-box { flex:2; min-width:130px; position:relative; }
+        .search-box input { width:100%; padding:10px 10px 10px 30px; border:2px solid var(--pink-light); border-radius:var(--radius-sm); font-size:12px; background:var(--card); color:var(--text); box-shadow:var(--shadow); transition:all 0.2s; }
+        .search-box input:focus { outline:none; border-color:var(--pink); box-shadow:0 0 0 3px rgba(255,184,198,0.08); }
+        .search-icon { position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:13px; pointer-events:none; }
+        /* Compact selects with text inside */
+        .compact-select { flex:1; min-width:85px; padding:9px 5px; border:2px solid var(--pink-light); border-radius:var(--radius-sm); font-size:10px; font-weight:600; background:var(--card); color:var(--text); box-shadow:var(--shadow); cursor:pointer; -webkit-appearance:none; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath fill='%23f08a9e' d='M4 6L0 2h8z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 5px center; padding-right:16px; text-align:center; }
+        .compact-select:focus { outline:none; border-color:var(--pink); }
 
-        /* 🌸 Decorative Ribbon */
-        .ribbon-divider {
-            text-align: center;
-            margin: 10px 0;
-            font-size: 14px;
-            letter-spacing: 3px;
-            color: var(--pink-dark);
-            opacity: 0.7;
-            animation: ribbonShimmer 3s ease-in-out infinite;
-        }
-        @keyframes ribbonShimmer {
-            0%,
-            100% {
-                opacity: 0.5;
-            }
-            50% {
-                opacity: 0.9;
-            }
-        }
+        .add-btn-main { width:100%; padding:12px; background:linear-gradient(135deg,#ffb8c6,#ffd0d8,#e0c8ff,#ffb8c6); background-size:300% 300%; color:white; border:none; border-radius:var(--radius); font-size:14px; font-weight:700; cursor:pointer; box-shadow:var(--shadow); margin-bottom:10px; animation:shimmer 4s ease-in-out infinite; letter-spacing:0.5px; }
+        @keyframes shimmer { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+        .add-btn-main:active { transform:scale(0.96); }
 
-        /* Header */
-        .header {
-            text-align: center;
-            padding: 18px 10px 12px;
-            position: relative;
-        }
-        .header .mascot-stack {
-            font-size: 55px;
-            display: inline-block;
-            animation: stackWobble 3s ease-in-out infinite;
-            position: relative;
-        }
-        @keyframes stackWobble {
-            0%,
-            100% {
-                transform: rotate(0deg) translateY(0);
-            }
-            15% {
-                transform: rotate(-5deg) translateY(-4px);
-            }
-            30% {
-                transform: rotate(4deg) translateY(2px);
-            }
-            45% {
-                transform: rotate(-3deg) translateY(-2px);
-            }
-            60% {
-                transform: rotate(0deg) translateY(0);
-            }
-        }
-        .header .sparkle-accents {
-            position: absolute;
-            pointer-events: none;
-            animation: twinkle 1.5s ease-in-out infinite;
-            font-size: 14px;
-        }
-        .header .sparkle-accents:nth-child(2) {
-            top: 10px;
-            left: 20%;
-            animation-delay: 0s;
-        }
-        .header .sparkle-accents:nth-child(3) {
-            top: 30px;
-            right: 20%;
-            animation-delay: 0.5s;
-        }
-        @keyframes twinkle {
-            0%,
-            100% {
-                opacity: 0.3;
-                transform: scale(0.8);
-            }
-            50% {
-                opacity: 1;
-                transform: scale(1.3);
-            }
-        }
-        .header h1 {
-            font-size: 24px;
-            background: linear-gradient(135deg, var(--pink-dark), #c9a0dc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 800;
-            margin-top: 2px;
-            letter-spacing: -0.3px;
-        }
-        .header .subtitle {
-            font-size: 12px;
-            color: var(--text-light);
-            margin-top: 2px;
-            letter-spacing: 0.5px;
-        }
-        .header .streak-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #fff3cd, #ffe0a0);
-            color: #c88420;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            margin-top: 8px;
-            animation: badgeGlow 2s ease-in-out infinite;
-            border: 2px solid #ffe0a0;
-        }
-        @keyframes badgeGlow {
-            0%,
-            100% {
-                box-shadow: 0 0 0 0 rgba(255, 200, 100, 0.5);
-            }
-            50% {
-                box-shadow: 0 0 0 12px rgba(255, 200, 100, 0);
-            }
-        }
+        .entry-list { display:flex; flex-direction:column; gap:8px; }
+        .entry-card { background:var(--card); border-radius:var(--radius); padding:12px; box-shadow:var(--shadow); border:1.5px solid transparent; animation:cardIn 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards; opacity:0; transform:translateY(14px); transition:all 0.2s; contain:layout style; }
+        @keyframes cardIn { to{opacity:1;transform:translateY(0)} }
+        .entry-card:active { transform:scale(0.985); }
+        .entry-card.favorite { border-color:#ffe8a0; background:#fffef8; }
+        .entry-card.completed-glow { border-color:#b8ffd4!important; animation:cardIn 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards,completePulse 2s ease-in-out infinite; }
+        @keyframes completePulse { 0%,100%{box-shadow:0 0 6px rgba(184,255,212,0.2)} 50%{box-shadow:0 0 18px rgba(184,255,212,0.5)} }
+        .card-row { display:flex; gap:10px; align-items:flex-start; }
+        .cover-thumb { width:55px; height:78px; border-radius:11px; object-fit:cover; background:linear-gradient(135deg,var(--pink-light),var(--purple-light)); flex-shrink:0; box-shadow:0 2px 6px rgba(0,0,0,0.05); display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; transition:all 0.2s; }
+        .cover-thumb:active { transform:scale(1.06); }
+        .card-content { flex:1; min-width:0; }
+        .card-title-text { font-weight:700; font-size:14px; color:var(--text); word-break:break-word; line-height:1.3; }
+        .card-title-text .fav-icon { color:#ffb347; font-size:12px; animation:starPop 2s ease-in-out infinite; }
+        @keyframes starPop { 0%,100%{transform:scale(1)} 50%{transform:scale(1.35)} }
+        .card-meta-row { display:flex; flex-wrap:wrap; gap:3px; margin:3px 0; }
+        .tag { font-size:8px; padding:2px 7px; border-radius:9px; font-weight:600; white-space:nowrap; letter-spacing:0.2px; }
+        .tag.ongoing{background:#e0ffee;color:#2d8a4e}.tag.finished{background:#e0eeff;color:#2d5a8a}.tag.hiatus{background:#fff3e0;color:#8a6d2d}.tag.dropped{background:#ffe0e0;color:#8a2d2d}.tag.genre{background:var(--purple-light);color:#5a3d8a}.tag.manhwa{background:#ffe0f0;color:#c44a7a}.tag.manhua{background:#ffe8d4;color:#c4733a}.tag.manga{background:#ffe0e0;color:#c44a4a}.tag.comic{background:#e0e8ff;color:#3a4a8a}.tag.emotion{background:#fff0f5;color:#c44a7a;border:1px solid #ffd0e0}
+        .progress-mini{background:#f0e8f0;height:5px;border-radius:5px;overflow:hidden;margin:4px 0 2px}
+        .progress-fill-mini{height:100%;border-radius:5px;transition:width 0.4s ease;background:linear-gradient(90deg,#ffb8c6,#d4b8ff)}
+        .progress-label{font-size:8px;color:var(--text-light);text-align:right}
+        .stars-mini{color:#ffb347;font-size:9px}.stars-mini .empty{color:#e0d8e0}
+        .card-actions-row{display:flex;gap:3px;margin-top:5px;flex-wrap:wrap}
+        .btn-action{padding:4px 8px;border-radius:7px;border:none;font-size:9px;font-weight:600;cursor:pointer;min-height:25px;transition:all 0.1s}
+        .btn-action:active{transform:scale(0.9);opacity:0.8}
+        .btn-ch{background:#e0eeff;color:#2d5a8a}.btn-rd{background:#d4f0e0;color:#2d6a4e}.btn-ed{background:var(--purple-light);color:#5a3d8a}.btn-fv{background:#fff8e0;color:#b88a20}.btn-dl{background:#ffe0e0;color:#c44}
 
-        /* Sound toggle */
-        .sound-toggle {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: var(--card);
-            border: 2px solid var(--pink-light);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow);
-            transition: all 0.2s;
-            z-index: 10;
-        }
-        .sound-toggle:active {
-            transform: scale(0.88);
-            background: var(--pink-light);
-        }
-        .sound-toggle.muted {
-            opacity: 0.5;
-            border-color: #ddd;
-        }
+        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:1000;padding:10px;animation:fadeIn 0.2s ease;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        .modal{background:var(--card);border-radius:var(--radius);padding:14px;width:100%;max-width:420px;max-height:86vh;max-height:86dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;box-shadow:0 20px 50px rgba(255,150,180,0.25);animation:modalSpring 0.3s cubic-bezier(0.34,1.56,0.64,1);border:2px solid var(--pink-light)}
+        @keyframes modalSpring{from{transform:scale(0.8) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+        .modal h3{text-align:center;font-size:15px;background:linear-gradient(135deg,var(--pink-dark),#c9a0dc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;margin-bottom:6px}
+        .form-section{margin-bottom:6px}
+        .form-section label{display:block;font-size:9px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:1px}
+        .form-section input,.form-section select,.form-section textarea{width:100%;padding:8px 10px;border:2px solid var(--pink-light);border-radius:var(--radius-xs);font-size:12px;font-family:inherit;color:var(--text);background:var(--card);transition:all 0.2s}
+        .form-section input:focus,.form-section select:focus,.form-section textarea:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,184,198,0.06)}
+        .form-row-2{display:flex;gap:5px}.form-row-2 .form-section{flex:1}
+        .cover-preview-modal{width:100%;height:100px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--pink-light),var(--purple-light));display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:34px;object-fit:cover;border:3px dashed #e8c8d8;transition:all 0.2s}
+        .cover-preview-modal:active{transform:scale(0.96)}
+        .modal-btn-row{display:flex;gap:5px;margin-top:8px}
+        .modal-btn-row button{flex:1;padding:9px;border-radius:var(--radius-xs);border:none;font-size:12px;font-weight:700;cursor:pointer;min-height:38px;transition:all 0.1s}
+        .btn-save-main{background:linear-gradient(135deg,#ffb8c6,#d4b8ff);color:white}
+        .btn-cancel-main{background:#f0e8f0;color:var(--text)}
+        .btn-save-main:active,.btn-cancel-main:active{transform:scale(0.94)}
 
-        /* Stats bar */
-        .stats-bar {
-            display: flex;
-            gap: 6px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 12px;
-        }
-        .stat-chip {
-            background: var(--card);
-            padding: 8px 13px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            border: 2px solid transparent;
-            transition: all 0.3s;
-            animation: chipFloat 4s ease-in-out infinite;
-        }
-        .stat-chip:nth-child(1) {
-            animation-delay: 0s;
-            border-color: var(--pink-light);
-        }
-        .stat-chip:nth-child(2) {
-            animation-delay: 0.5s;
-            border-color: var(--mint-light);
-        }
-        .stat-chip:nth-child(3) {
-            animation-delay: 1s;
-            border-color: var(--blue-light);
-        }
-        .stat-chip:nth-child(4) {
-            animation-delay: 1.5s;
-            border-color: var(--purple-light);
-        }
-        @keyframes chipFloat {
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-3px);
-            }
-        }
-        .stat-chip:active {
-            transform: scale(0.94);
-        }
-        .stat-number {
-            font-size: 16px;
-            font-weight: 800;
-            color: var(--pink-dark);
-        }
+        .search-results-popup{max-height:200px;overflow-y:auto;border:1px solid var(--pink-light);border-radius:var(--radius-xs);margin-top:2px;display:none}
+        .search-result-row{display:flex;gap:7px;padding:7px 8px;cursor:pointer;border-bottom:1px solid var(--pink-light);align-items:center;font-size:10px;transition:background 0.1s}
+        .search-result-row:active{background:var(--pink-light)}
+        .search-result-row img{width:30px;height:42px;border-radius:5px;object-fit:cover;background:var(--pink-light)}
+        .search-source-tag{font-size:7px;padding:1px 5px;border-radius:5px;background:#e0eeff;color:#2d5a8a;margin-left:3px}
 
-        /* Utility bar */
-        .utility-bar {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .utility-btn {
-            padding: 8px 15px;
-            border-radius: 20px;
-            border: 2px solid var(--pink-light);
-            background: var(--card);
-            font-size: 11px;
-            cursor: pointer;
-            font-weight: 600;
-            color: var(--text);
-            transition: all 0.2s;
-            box-shadow: var(--shadow);
-            white-space: nowrap;
-        }
-        .utility-btn:active {
-            transform: scale(0.93);
-            background: var(--pink-light);
-            border-color: var(--pink);
-        }
-        .utility-btn.accent {
-            background: linear-gradient(135deg, #fff3cd, #ffe8c0);
-            border-color: #ffe0a0;
-            color: #b87820;
-            animation: accentShine 3s ease-in-out infinite;
-        }
-        @keyframes accentShine {
-            0%,
-            100% {
-                box-shadow: 0 0 5px rgba(255, 200, 100, 0.3);
-            }
-            50% {
-                box-shadow: 0 0 20px rgba(255, 200, 100, 0.6);
-            }
-        }
+        .read-links-inner{max-height:180px;overflow-y:auto}
+        .read-link-row{display:flex;justify-content:space-between;align-items:center;padding:7px 8px;border-bottom:1px solid var(--pink-light);font-size:10px}
+        .read-link-row a{color:var(--pink-dark);text-decoration:none;font-weight:600}
 
-        /* Search & Filter */
-        .search-filter {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-        .search-box {
-            flex: 3;
-            min-width: 160px;
-            position: relative;
-        }
-        .search-box input {
-            width: 100%;
-            padding: 12px 14px 12px 38px;
-            border: 2px solid var(--pink-light);
-            border-radius: var(--radius-sm);
-            font-size: 14px;
-            background: var(--card);
-            color: var(--text);
-            transition: all 0.3s;
-            box-shadow: var(--shadow);
-        }
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--pink);
-            box-shadow: 0 0 0 4px rgba(255, 184, 198, 0.15);
-        }
-        .search-box .search-icon {
-            position: absolute;
-            left: 13px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 16px;
-            pointer-events: none;
-            animation: searchBounce 2s ease-in-out infinite;
-        }
-        @keyframes searchBounce {
-            0%,
-            100% {
-                transform: translateY(-50%) scale(1);
-            }
-            50% {
-                transform: translateY(-55%) scale(1.2);
-            }
-        }
-        .filter-select {
-            flex: 1;
-            min-width: 110px;
-            padding: 10px 8px;
-            border: 2px solid var(--pink-light);
-            border-radius: var(--radius-sm);
-            font-size: 12px;
-            background: var(--card);
-            color: var(--text);
-            box-shadow: var(--shadow);
-            cursor: pointer;
-            -webkit-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23f08a9e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 8px center;
-            padding-right: 26px;
-        }
-        .filter-select:focus {
-            outline: none;
-            border-color: var(--pink);
-        }
+        .music-float{position:fixed;bottom:16px;right:12px;z-index:500;display:flex;gap:4px;align-items:center}
+        .music-btn-float{width:34px;height:34px;border-radius:50%;border:2px solid var(--pink-light);background:var(--card);font-size:14px;cursor:pointer;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center}
+        .music-btn-float:active{transform:scale(0.85)}
+        .volume-slider{-webkit-appearance:none;width:44px;height:3px;border-radius:2px;background:var(--pink-light);accent-color:var(--pink-dark)}
 
-        /* 🌈 Rainbow Shimmer Add Button */
-        .add-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #ffb8c6, #ffd4b8, #d4b8ff, #b8d4ff, #ffb8c6);
-            background-size: 400% 400%;
-            color: white;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: var(--shadow);
-            transition: all 0.3s;
-            margin-bottom: 14px;
-            letter-spacing: 0.5px;
-            animation: rainbowShimmer 4s ease-in-out infinite;
-            position: relative;
-            overflow: hidden;
-        }
-        @keyframes rainbowShimmer {
-            0%,
-            100% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-        }
-        .add-btn::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.3) 50%, transparent 60%);
-            animation: btnShine 3s ease-in-out infinite;
-        }
-        @keyframes btnShine {
-            0% {
-                transform: translateX(-100%) rotate(45deg);
-            }
-            100% {
-                transform: translateX(100%) rotate(45deg);
-            }
-        }
-        .add-btn:active {
-            transform: scale(0.96);
-            box-shadow: 0 2px 8px rgba(255, 184, 198, 0.3);
-        }
+        .save-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#ffb8c6,#d4b8ff);color:white;padding:6px 14px;border-radius:16px;font-size:9px;font-weight:700;z-index:400;opacity:0;transition:opacity 0.3s;pointer-events:none}
+        .save-toast.show{opacity:1;animation:popUp 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+        @keyframes popUp{0%{transform:translateX(-50%) scale(0.5)}100%{transform:translateX(-50%) scale(1)}}
 
-        /* Cards */
-        .entry-card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 15px;
-            margin-bottom: 12px;
-            box-shadow: var(--shadow);
-            transition: all 0.3s;
-            border: 2px solid transparent;
-            position: relative;
-            overflow: visible;
-            animation: cardSpring 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-            opacity: 0;
-            transform: scale(0.8) translateY(30px);
-        }
-        @keyframes cardSpring {
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-        .entry-card:active {
-            transform: scale(0.98);
-        }
-        .entry-card.favorite {
-            border-color: #ffe0a0;
-            background: #fffef8;
-            box-shadow: 0 4px 20px rgba(255, 200, 120, 0.3);
-        }
-        .entry-card.completed-100 {
-            border-color: #b8ffd4 !important;
-            animation: celebrateGlow 1s ease-in-out infinite;
-        }
-        @keyframes celebrateGlow {
-            0%,
-            100% {
-                box-shadow: 0 0 10px rgba(184, 255, 212, 0.4);
-            }
-            50% {
-                box-shadow: 0 0 30px rgba(184, 255, 212, 0.8);
-            }
-        }
-        .entry-card .card-inner {
-            display: flex;
-            gap: 13px;
-            align-items: flex-start;
-        }
-        .entry-card .cover-img {
-            width: 75px;
-            height: 105px;
-            border-radius: var(--radius-sm);
-            object-fit: cover;
-            background: linear-gradient(135deg, var(--pink-light), var(--purple-light));
-            flex-shrink: 0;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 38px;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-        .entry-card .cover-img:active {
-            transform: scale(1.06) rotate(-2deg);
-        }
-        .entry-card .cover-img .cover-hint {
-            position: absolute;
-            bottom: 4px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 9px;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            padding: 2px 0;
-            opacity: 0;
-            transition: opacity 0.3s;
-            border-radius: 0 0 12px 12px;
-        }
-        .entry-card .cover-img:active .cover-hint {
-            opacity: 1;
-        }
-        .card-info {
-            flex: 1;
-            min-width: 0;
-        }
-        .card-title {
-            font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 4px;
-            color: #4a3a4a;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            word-break: break-word;
-        }
-        .card-title .fav-star {
-            color: #ffb347;
-            font-size: 15px;
-            flex-shrink: 0;
-            animation: starPulse 1.5s ease-in-out infinite;
-        }
-        @keyframes starPulse {
-            0%,
-            100% {
-                transform: scale(1) rotate(0deg);
-            }
-            25% {
-                transform: scale(1.4) rotate(15deg);
-            }
-            50% {
-                transform: scale(1) rotate(0deg);
-            }
-            75% {
-                transform: scale(1.4) rotate(-15deg);
-            }
-        }
-        .card-meta {
-            font-size: 11px;
-            color: var(--text-light);
-            margin-bottom: 3px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
+        .empty-message{text-align:center;padding:35px 15px;color:var(--text-light)}
+        .empty-message .empty-emoji{font-size:50px;animation:floaty 3s ease-in-out infinite}
+        @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 
-        /* Progress */
-        .progress-wrap {
-            margin: 7px 0;
-        }
-        .progress-bar {
-            background: #f0e8f0;
-            height: 9px;
-            border-radius: 9px;
-            overflow: hidden;
-            position: relative;
-        }
-        .progress-fill {
-            height: 100%;
-            border-radius: 9px;
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            background: linear-gradient(90deg, #ffb8c6, #d4b8ff, #b8d4ff);
-            background-size: 200% 100%;
-            animation: progressShine 2s linear infinite;
-            position: relative;
-        }
-        @keyframes progressShine {
-            0% {
-                background-position: 200% 0;
-            }
-            100% {
-                background-position: -200% 0;
-            }
-        }
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            right: 2px;
-            top: 1px;
-            width: 16px;
-            height: 7px;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 7px;
-        }
-        .progress-text {
-            font-size: 10px;
-            color: var(--text-light);
-            margin-top: 3px;
-            text-align: right;
-        }
-
-        /* Tags */
-        .tag-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            margin: 5px 0;
-        }
-        .tag {
-            font-size: 10px;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-        .tag:active {
-            transform: scale(1.1);
-        }
-        .tag.ongoing {
-            background: #e0ffee;
-            color: #2d8a4e;
-        }
-        .tag.finished {
-            background: #e0eeff;
-            color: #2d5a8a;
-        }
-        .tag.hiatus {
-            background: #fff3e0;
-            color: #8a6d2d;
-        }
-        .tag.dropped {
-            background: #ffe0e0;
-            color: #8a2d2d;
-        }
-        .tag.genre {
-            background: var(--purple-light);
-            color: #5a3d8a;
-        }
-        .tag.priority-high {
-            background: #ffe0e0;
-            color: #d44;
-            animation: urgentPulse 2s ease-in-out infinite;
-        }
-        @keyframes urgentPulse {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.7;
-            }
-        }
-        .tag.priority-medium {
-            background: #fff8e0;
-            color: #b88a20;
-        }
-        .tag.priority-low {
-            background: #e0f0e0;
-            color: #4a8a4a;
-        }
-        .tag.manhwa {
-            background: #ffe0f0;
-            color: #c44a7a;
-        }
-        .tag.manhua {
-            background: #ffe8d4;
-            color: #c4733a;
-        }
-        .tag.manga {
-            background: #ffe0e0;
-            color: #c44a4a;
-        }
-
-        /* Stars */
-        .stars {
-            color: #ffb347;
-            font-size: 13px;
-            letter-spacing: 1px;
-        }
-        .stars .empty {
-            color: #e0d8e0;
-        }
-
-        /* Card actions */
-        .card-actions {
-            display: flex;
-            gap: 5px;
-            margin-top: 8px;
-            flex-wrap: wrap;
-        }
-        .btn-sm {
-            padding: 7px 12px;
-            border-radius: var(--radius-xs);
-            border: none;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            letter-spacing: 0.3px;
-            min-height: 34px;
-            min-width: 44px;
-        }
-        .btn-sm:active {
-            transform: scale(0.9);
-            opacity: 0.8;
-        }
-        .btn-edit {
-            background: var(--purple-light);
-            color: #5a3d8a;
-        }
-        .btn-chapter {
-            background: var(--blue-light);
-            color: #2d5a8a;
-        }
-        .btn-delete {
-            background: #ffe0e0;
-            color: #c44;
-        }
-        .btn-fav {
-            background: #fff8e0;
-            color: #b88a20;
-        }
-
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            height: 100dvh;
-            background: rgba(0, 0, 0, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 16px;
-            animation: fadeIn 0.2s ease;
-            backdrop-filter: blur(3px);
-            -webkit-backdrop-filter: blur(3px);
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-        .modal {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 20px;
-            width: 100%;
-            max-width: 480px;
-            max-height: 85vh;
-            max-height: 85dvh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            box-shadow: 0 20px 50px rgba(255, 150, 180, 0.3);
-            animation: modalBounce 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            border: 2px solid var(--pink-light);
-        }
-        @keyframes modalBounce {
-            from {
-                transform: scale(0.7) translateY(40px);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1) translateY(0);
-                opacity: 1;
-            }
-        }
-        .modal h3 {
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 19px;
-            background: linear-gradient(135deg, var(--pink-dark), #c9a0dc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 800;
-        }
-        .modal .form-group {
-            margin-bottom: 10px;
-        }
-        .modal label {
-            display: block;
-            font-size: 11px;
-            font-weight: 700;
-            margin-bottom: 3px;
-            color: var(--text-light);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .modal input,
-        .modal select,
-        .modal textarea {
-            width: 100%;
-            padding: 10px 13px;
-            border: 2px solid var(--pink-light);
-            border-radius: var(--radius-xs);
-            font-size: 14px;
-            font-family: inherit;
-            color: var(--text);
-            transition: all 0.3s;
-            background: #fefefe;
-        }
-        .modal input:focus,
-        .modal select:focus,
-        .modal textarea:focus {
-            outline: none;
-            border-color: var(--pink);
-            box-shadow: 0 0 0 4px rgba(255, 184, 198, 0.12);
-        }
-        .modal textarea {
-            resize: vertical;
-            min-height: 55px;
-        }
-        .modal .cover-preview {
-            width: 100%;
-            height: 135px;
-            border-radius: var(--radius-sm);
-            background: linear-gradient(135deg, var(--pink-light), var(--purple-light));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 48px;
-            object-fit: cover;
-            margin-bottom: 5px;
-            transition: all 0.3s;
-            border: 3px dashed #e8c8d8;
-        }
-        .modal .cover-preview:active {
-            transform: scale(0.96);
-            border-color: var(--pink);
-        }
-        .modal .btn-row {
-            display: flex;
-            gap: 8px;
-            margin-top: 15px;
-        }
-        .modal .btn-row button {
-            flex: 1;
-            padding: 12px;
-            border-radius: var(--radius-xs);
-            border: none;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            letter-spacing: 0.3px;
-            min-height: 44px;
-        }
-        .btn-save {
-            background: linear-gradient(135deg, #ffb8c6, #d4b8ff);
-            color: white;
-        }
-        .btn-cancel {
-            background: #f0e8f0;
-            color: var(--text);
-        }
-        .btn-save:active,
-        .btn-cancel:active {
-            transform: scale(0.94);
-            opacity: 0.8;
-        }
-
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: var(--text-light);
-        }
-        .empty-state .empty-icon {
-            font-size: 80px;
-            animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-        .empty-state p {
-            margin-top: 10px;
-            font-size: 15px;
-            line-height: 1.6;
-        }
-
-        /* Save indicator */
-        .save-indicator {
-            position: fixed;
-            bottom: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #ffb8c6, #d4b8ff);
-            color: white;
-            padding: 9px 20px;
-            border-radius: 25px;
-            font-size: 12px;
-            font-weight: 700;
-            z-index: 500;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            box-shadow: 0 8px 25px rgba(255, 150, 180, 0.4);
-        }
-        .save-indicator.show {
-            opacity: 1;
-            animation: savePop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-        @keyframes savePop {
-            0% {
-                transform: translateX(-50%) scale(0.5);
-            }
-            100% {
-                transform: translateX(-50%) scale(1);
-            }
-        }
-
-        /* Hidden */
-        #coverInput,
-        #importInput {
-            display: none;
-        }
-
-        @media (max-width: 380px) {
-            .entry-card .cover-img {
-                width: 58px;
-                height: 82px;
-                font-size: 30px;
-            }
-            .card-title {
-                font-size: 14px;
-            }
-            .header h1 {
-                font-size: 20px;
-            }
-            .add-btn {
-                font-size: 14px;
-                padding: 12px;
-            }
-        }
+        .hidden-input{display:none}
+        @media(max-width:350px){.cover-thumb{width:44px;height:64px;font-size:20px}.card-title-text{font-size:12px}}
     </style>
 </head>
 <body>
 
-    <!-- 🌸 Falling Petals Canvas -->
     <canvas id="petalsCanvas"></canvas>
-
-    <!-- ✨ Sparkle Container -->
     <div id="sparkleContainer"></div>
 
-    <div class="app-container" id="appContainer">
-        <!-- Header -->
+    <div class="app-container">
+        <div class="top-bar">
+            <button class="icon-btn" id="darkToggle" onclick="toggleDarkMode()" aria-label="Dark mode">🌙</button>
+            <button class="icon-btn" id="soundToggle" onclick="toggleSound()" aria-label="Sound">🔊</button>
+        </div>
+
         <div class="header">
-            <button class="sound-toggle" id="soundToggle" onclick="toggleSound()" title="Sound FX">🔊</button>
-            <span class="sparkle-accents">✦</span>
-            <span class="sparkle-accents">✧</span>
-            <div class="mascot-stack">🐰📚</div>
-            <h1>My Binge List</h1>
-            <p class="subtitle">♡ Manhwa · Manhua · Manga Tracker ♡</p>
-            <div class="streak-badge" id="streakBadge" style="display:none">🔥 0 day streak!</div>
+            <div class="mascot" onclick="spawnSparkles(window.innerWidth/2,140,5)">🐰</div>
+            <h1>BingeBean</h1>
+            <p class="subtitle">♡ your cozy comic tracker ♡</p>
+            <div class="streak-badge" id="streakBadge" style="display:none">🔥 0 day streak</div>
         </div>
 
-        <!-- Ribbon Divider -->
-        <div class="ribbon-divider">🌸 ── ✿ ── 🌸</div>
+        <div class="divider">· ✿ ·</div>
 
-        <!-- Stats -->
-        <div class="stats-bar">
-            <div class="stat-chip"><span>📚</span> Total: <span class="stat-number" id="totalCount">0</span></div>
-            <div class="stat-chip"><span>📖</span> Ongoing: <span class="stat-number" id="ongoingCount">0</span></div>
-            <div class="stat-chip"><span>✅</span> Done: <span class="stat-number" id="finishedCount">0</span></div>
-            <div class="stat-chip"><span>⭐</span> Favs: <span class="stat-number" id="favCount">0</span></div>
+        <div class="stats-row">
+            <div class="stat-chip">📚 <span class="stat-num" id="totalCount">0</span> Total</div>
+            <div class="stat-chip">📖 <span class="stat-num" id="ongoingCount">0</span> Ongoing</div>
+            <div class="stat-chip">✅ <span class="stat-num" id="finishedCount">0</span> Done</div>
+            <div class="stat-chip">⭐ <span class="stat-num" id="favCount">0</span> Favs</div>
         </div>
 
-        <!-- Utility -->
-        <div class="utility-bar">
-            <button class="utility-btn" onclick="playSound('export'); exportData()">📤 Export</button>
-            <button class="utility-btn" onclick="document.getElementById('importInput').click()">📥 Import</button>
-            <button class="utility-btn accent" onclick="updateAllOngoing()">⚡ Update All</button>
-            <input type="file" id="importInput" accept=".json" onchange="importData(event)">
+        <div class="util-row">
+            <button class="util-btn" onclick="exportData()">📤 Export</button>
+            <button class="util-btn" onclick="document.getElementById('importInput').click()">📥 Import</button>
+            <button class="util-btn accent" onclick="updateAllOngoing()">⚡ +1 All</button>
+            <input type="file" id="importInput" accept=".json" class="hidden-input" onchange="importData(event)">
         </div>
 
-        <!-- Search & Filter -->
-        <div class="search-filter">
+        <!-- Compact search row with text inside -->
+        <div class="search-row">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="searchInput" placeholder="Search title or genre..." oninput="renderList()" autocomplete="off">
+                <input type="text" id="searchInput" placeholder="Search your list..." oninput="debouncedRender()" autocomplete="off">
             </div>
-            <select class="filter-select" id="typeFilter" onchange="renderList()">
-                <option value="all">🌏 All</option>
+            <select class="compact-select" id="typeFilter" onchange="renderList()">
+                <option value="all">🌏 All Types</option>
                 <option value="Manhwa">🇰🇷 Manhwa</option>
                 <option value="Manhua">🇨🇳 Manhua</option>
                 <option value="Manga">🇯🇵 Manga</option>
+                <option value="Comic">💬 Comic</option>
             </select>
-            <select class="filter-select" id="statusFilter" onchange="renderList()">
+            <select class="compact-select" id="statusFilter" onchange="renderList()">
                 <option value="all">📋 All</option>
                 <option value="Ongoing">📖 Ongoing</option>
-                <option value="Finished">✅ Finished</option>
-                <option value="Hiatus">⏸️ Hiatus</option>
-                <option value="Dropped">❌ Dropped</option>
+                <option value="Finished">✅ Done</option>
+                <option value="Hiatus">⏸️ Pause</option>
+                <option value="Dropped">❌ Drop</option>
             </select>
-            <select class="filter-select" id="sortBy" onchange="renderList()">
+            <select class="compact-select" id="sortBy" onchange="renderList()">
                 <option value="title">🔤 A-Z</option>
-                <option value="rating">⭐ Rating</option>
-                <option value="recent">🕐 Recent</option>
-                <option value="progress">📊 Progress</option>
+                <option value="rating">⭐ Best</option>
+                <option value="recent">🕐 New</option>
+                <option value="progress">📊 Prog</option>
             </select>
         </div>
 
-        <!-- Add Button -->
-        <button class="add-btn" onclick="playSound('open'); openAddModal()">🌸 ＋ Add New Entry ＋ 🌸</button>
+        <button class="add-btn-main" onclick="openAddModal()">🌸 ＋ Add New Entry ＋ 🌸</button>
 
-        <!-- Ribbon Divider -->
-        <div class="ribbon-divider">📖 ── ✿ ── 📖</div>
+        <div class="divider">· ✿ ·</div>
 
-        <!-- List -->
-        <div id="entryList"></div>
-
-        <!-- Empty State -->
-        <div class="empty-state" id="emptyState">
-            <div class="empty-icon">🐰📭</div>
-            <p>Your binge list is empty!<br>Tap the <strong>rainbow button</strong> above to start~ ✨</p>
+        <div class="entry-list" id="entryList"></div>
+        <div class="empty-message" id="emptyState">
+            <div class="empty-emoji">🐰📭</div>
+            <p>Your list is empty!<br>Tap the pink button to start~ ✨</p>
         </div>
     </div>
 
-    <!-- Save Indicator -->
-    <div class="save-indicator" id="saveIndicator">💾 Saved! ✨</div>
+    <div class="save-toast" id="saveToast">💾 Saved!</div>
+
+    <div class="music-float">
+        <button class="music-btn-float" id="musicToggle" onclick="toggleMusic()">🎵</button>
+        <input type="range" class="volume-slider" id="musicVolume" min="0" max="100" value="25" oninput="setMusicVolume(this.value)">
+    </div>
 
     <!-- Modal -->
     <div class="modal-overlay" id="modalOverlay" style="display:none">
-        <div class="modal" id="modal">
+        <div class="modal">
             <h3 id="modalTitle">🌸 Add New Entry</h3>
-            <div class="form-group">
-                <label>📸 Cover Image (tap to upload)</label>
-                <img class="cover-preview" id="coverPreview" src="" alt="Tap to add cover~" onclick="playSound('click'); document.getElementById('coverInput').click()">
-                <input type="file" id="coverInput" accept="image/*" onchange="handleCoverUpload(event)">
+            <div class="form-section">
+                <label>🔍 Search Online (AniList + Kitsu + MangaDex + Google Books)</label>
+                <div style="display:flex;gap:5px">
+                    <input type="text" id="onlineSearchInput" placeholder="Search any comic, manhwa, manga..." autocomplete="off" style="flex:1">
+                    <button class="btn-action btn-ed" onclick="searchOnline()" style="min-width:36px">🔍</button>
+                </div>
+                <div class="search-results-popup" id="searchResults"></div>
             </div>
-            <div class="form-group">
+            <div class="form-section">
+                <label>📸 Cover</label>
+                <img class="cover-preview-modal" id="coverPreview" src="" alt="Tap to add cover" onclick="document.getElementById('coverInput').click()">
+                <input type="file" id="coverInput" accept="image/*" class="hidden-input" onchange="handleCoverUpload(event)">
+            </div>
+            <div class="form-section">
                 <label>📚 Title *</label>
-                <input type="text" id="inputTitle" placeholder="Type the title here..." autocomplete="off">
+                <input type="text" id="inputTitle" placeholder="Type title here..." autocomplete="off">
             </div>
-            <div class="form-group">
-                <label>🌏 Type</label>
-                <select id="inputType">
-                    <option value="Manhwa">🇰🇷 Manhwa (Korean)</option>
-                    <option value="Manhua">🇨🇳 Manhua (Chinese)</option>
-                    <option value="Manga">🇯🇵 Manga (Japanese)</option>
+            <div class="form-section">
+                <label>🏷️ Alt Titles (auto-filled)</label>
+                <input type="text" id="inputAltTitles" placeholder="From search" readonly style="opacity:0.6">
+            </div>
+            <div class="form-row-2">
+                <div class="form-section"><label>🌏 Type</label><select id="inputType"><option value="Manhwa">🇰🇷 Manhwa</option><option value="Manhua">🇨🇳 Manhua</option><option value="Manga">🇯🇵 Manga</option><option value="Comic">💬 Comic</option></select></div>
+                <div class="form-section"><label>📖 Status</label><select id="inputStatus"><option value="Ongoing">📖 Ongoing</option><option value="Finished">✅ Finished</option><option value="Hiatus">⏸️ Hiatus</option><option value="Dropped">❌ Dropped</option></select></div>
+            </div>
+            <div class="form-section">
+                <label>🎭 Emotion / Vibe</label>
+                <select id="inputEmotion">
+                    <option value="">None</option><option value="😂 Comedy">😂 Comedy</option><option value="😢 Sad">😢 Sad</option><option value="😱 Thriller">😱 Thriller</option><option value="🥰 Romance">🥰 Romance</option><option value="🤯 Mind-bending">🤯 Mind-bend</option><option value="😤 Rage">😤 Rage</option><option value="🥺 Wholesome">🥺 Wholesome</option><option value="😈 Dark">😈 Dark</option><option value="🤩 Hype">🤩 Hype</option><option value="😴 Cozy">😴 Cozy</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>📖 Status</label>
-                <select id="inputStatus">
-                    <option value="Ongoing">📖 Ongoing</option>
-                    <option value="Finished">✅ Finished</option>
-                    <option value="Hiatus">⏸️ Hiatus</option>
-                    <option value="Dropped">❌ Dropped</option>
-                </select>
+            <div class="form-row-2">
+                <div class="form-section"><label>📄 Last Read Ch.</label><input type="number" id="inputLastChapter" placeholder="0" min="0" inputmode="numeric"></div>
+                <div class="form-section"><label>📑 Total Ch.</label><input type="number" id="inputTotalChapters" placeholder="?" min="0" inputmode="numeric"></div>
             </div>
-            <div class="form-group" style="display:flex;gap:8px">
-                <div style="flex:1">
-                    <label>📄 Last Read Ch.</label>
-                    <input type="number" id="inputLastChapter" placeholder="0" min="0" inputmode="numeric">
-                </div>
-                <div style="flex:1">
-                    <label>📑 Total Chapters</label>
-                    <input type="number" id="inputTotalChapters" placeholder="?" min="0" inputmode="numeric">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>⭐ Rating (1-10)</label>
+            <div class="form-section">
+                <label>⭐ Rating</label>
                 <input type="range" id="inputRating" min="0" max="10" value="0" oninput="updateRatingDisplay()" style="width:100%;accent-color:#ffb347">
-                <span id="ratingDisplay" style="font-size:17px;color:#ffb347">☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆</span>
+                <span id="ratingDisplay" style="font-size:14px;color:#ffb347">☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆</span>
             </div>
-            <div class="form-group">
-                <label>🏷️ Genre Tags (comma separated)</label>
-                <input type="text" id="inputGenres" placeholder="e.g. Action, Romance, Fantasy" autocomplete="off">
+            <div class="form-section"><label>🏷️ Genres</label><input type="text" id="inputGenres" placeholder="Action, Romance..." autocomplete="off"></div>
+            <div class="form-section"><label>✏️ Custom Tags</label><input type="text" id="inputCustomTags" placeholder="e.g. Binge-worthy..." autocomplete="off"></div>
+            <div class="form-row-2">
+                <div class="form-section"><label>🔴 Priority</label><select id="inputPriority"><option value="Medium">🟡 Medium</option><option value="High">🔴 High</option><option value="Low">🟢 Low</option></select></div>
+                <div class="form-section"><label>📅 Release Day</label><select id="inputReleaseDay"><option value="">Unknown</option><option value="Mon">Monday</option><option value="Tue">Tuesday</option><option value="Wed">Wednesday</option><option value="Thu">Thursday</option><option value="Fri">Friday</option><option value="Sat">Saturday</option><option value="Sun">Sunday</option></select></div>
             </div>
-            <div class="form-group">
-                <label>🔴 Priority</label>
-                <select id="inputPriority">
-                    <option value="Medium">🟡 Medium</option>
-                    <option value="High">🔴 High</option>
-                    <option value="Low">🟢 Low</option>
-                </select>
+            <div class="form-section"><label>📱 Source</label><input type="text" id="inputSource" placeholder="Webtoon, Kakao..." autocomplete="off"></div>
+            <div class="form-section"><label>📝 Notes</label><textarea id="inputNotes" placeholder="Any thoughts...?" rows="2"></textarea></div>
+            <div class="modal-btn-row">
+                <button class="btn-cancel-main" onclick="closeModal()">💫 Cancel</button>
+                <button class="btn-save-main" onclick="saveEntry()">💾 Save ✨</button>
             </div>
-            <div class="form-group">
-                <label>📱 Source / Platform</label>
-                <input type="text" id="inputSource" placeholder="e.g. Webtoon, Tachiyomi, Kakao" autocomplete="off">
-            </div>
-            <div class="form-group">
-                <label>📝 Notes</label>
-                <textarea id="inputNotes" placeholder="Any thoughts...?" rows="2"></textarea>
-            </div>
-            <div class="btn-row">
-                <button class="btn-cancel" onclick="playSound('close'); closeModal()">💫 Cancel</button>
-                <button class="btn-save" onclick="playSound('save'); saveEntry()">💾 Save ✨</button>
+        </div>
+    </div>
+
+    <!-- Read Links Modal -->
+    <div class="modal-overlay" id="readModalOverlay" style="display:none">
+        <div class="modal">
+            <h3>📖 Reading Links</h3>
+            <div class="read-links-inner" id="readLinksList"></div>
+            <div class="modal-btn-row" style="margin-top:6px">
+                <button class="btn-cancel-main" onclick="searchReadLinksWeb()">🌐 Search Web</button>
+                <button class="btn-cancel-main" onclick="closeReadModal()">Close</button>
             </div>
         </div>
     </div>
 
     <script>
-        // ══════════════════════════════════════
-        // 🌸 PETAL ANIMATION
-        // ══════════════════════════════════════
-        (function initPetals() {
-            const canvas = document.getElementById('petalsCanvas');
-            const ctx = canvas.getContext('2d');
-            let petals = [];
-            const maxPetals = 25;
+        // ═══════════════ AUDIO ═══════════════
+        let audioCtx = null,
+            soundEnabled = true,
+            musicEnabled = false,
+            musicVolume = 0.25,
+            musicInterval = null;
 
-            function resize() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
-            resize();
-            window.addEventListener('resize', resize);
+        function getCtx() { if (!audioCtx) try { audioCtx = new(window.AudioContext || window.webkitAudioContext)(); } catch (
+                e) { return null } if (audioCtx.state === 'suspended') audioCtx.resume(); return audioCtx; }
 
-            const petalShapes = ['🌸', '💮', '✿', '🌷', '🩷', '･', '˚'];
-
-            function createPetal() {
-                return {
-                    x: Math.random() * canvas.width,
-                    y: -30,
-                    size: 10 + Math.random() * 16,
-                    speed: 0.4 + Math.random() * 1.2,
-                    wobble: Math.random() * 2 - 1,
-                    wobbleSpeed: 0.01 + Math.random() * 0.03,
-                    symbol: petalShapes[Math.floor(Math.random() * petalShapes.length)],
-                    opacity: 0.3 + Math.random() * 0.5,
-                    rotation: Math.random() * 360,
-                    rotSpeed: (Math.random() - 0.5) * 2,
-                };
-            }
-
-            for (let i = 0; i < maxPetals; i++) {
-                const p = createPetal();
-                p.y = Math.random() * canvas.height;
-                petals.push(p);
-            }
-
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                petals.forEach(p => {
-                    p.y += p.speed;
-                    p.x += Math.sin(p.y * p.wobbleSpeed) * p.wobble;
-                    p.rotation += p.rotSpeed;
-
-                    if (p.y > canvas.height + 40) {
-                        p.y = -30;
-                        p.x = Math.random() * canvas.width;
-                    }
-                    if (p.x < -30) p.x = canvas.width + 30;
-                    if (p.x > canvas.width + 30) p.x = -30;
-
-                    ctx.save();
-                    ctx.globalAlpha = p.opacity;
-                    ctx.translate(p.x, p.y);
-                    ctx.rotate(p.rotation * Math.PI / 180);
-                    ctx.font = `${p.size}px serif`;
-                    ctx.fillText(p.symbol, -p.size / 2, p.size / 2);
-                    ctx.restore();
-                });
-
-                requestAnimationFrame(animate);
-            }
-
-            animate();
-        })();
-
-        // ══════════════════════════════════════
-        // ✨ SPARKLE EFFECTS
-        // ══════════════════════════════════════
-        function spawnSparkles(x, y, count = 8) {
-            const container = document.getElementById('sparkleContainer');
-            const emojis = ['✨', '⭐', '💫', '🌟', '✦', '✧', '💖', '🎀'];
-
-            for (let i = 0; i < count; i++) {
-                const sparkle = document.createElement('span');
-                sparkle.className = 'sparkle-particle';
-                sparkle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                sparkle.style.left = x + 'px';
-                sparkle.style.top = y + 'px';
-                sparkle.style.setProperty('--dx', (Math.random() - 0.5) * 120 + 'px');
-                sparkle.style.setProperty('--dy', (Math.random() - 0.5) * 120 - 40 + 'px');
-                sparkle.style.fontSize = (10 + Math.random() * 20) + 'px';
-                sparkle.style.animationDuration = (0.6 + Math.random() * 0.8) + 's';
-                container.appendChild(sparkle);
-
-                setTimeout(() => sparkle.remove(), 1500);
-            }
-        }
-
-        function spawnConfetti(count = 20) {
-            const emojis = ['🎉', '🎊', '🌸', '💮', '⭐', '💖', '🎀', '📚', '🌈'];
-            for (let i = 0; i < count; i++) {
-                const confetti = document.createElement('span');
-                confetti.className = 'confetti-piece';
-                confetti.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                confetti.style.left = Math.random() * window.innerWidth + 'px';
-                confetti.style.top = -(20 + Math.random() * 80) + 'px';
-                confetti.style.animationDuration = (1.5 + Math.random() * 2.5) + 's';
-                confetti.style.animationDelay = Math.random() * 0.5 + 's';
-                confetti.style.fontSize = (14 + Math.random() * 20) + 'px';
-                document.body.appendChild(confetti);
-                setTimeout(() => confetti.remove(), 3000);
-            }
-        }
-
-        function spawnHearts(x, y, count = 6) {
-            for (let i = 0; i < count; i++) {
-                const heart = document.createElement('span');
-                heart.className = 'heart-burst';
-                heart.textContent = ['💖', '💕', '💗', '💝', '❤️', '🩷'][Math.floor(Math.random() * 6)];
-                heart.style.left = (x + (Math.random() - 0.5) * 80) + 'px';
-                heart.style.top = (y + (Math.random() - 0.5) * 40) + 'px';
-                heart.style.animationDuration = (0.5 + Math.random() * 0.6) + 's';
-                heart.style.fontSize = (16 + Math.random() * 20) + 'px';
-                document.body.appendChild(heart);
-                setTimeout(() => heart.remove(), 1000);
-            }
-        }
-
-        // ══════════════════════════════════════
-        // 🎵 SOUND ENGINE (8-bit SFX)
-        // ══════════════════════════════════════
-        let audioCtx = null;
-        let soundEnabled = true;
-
-        function getAudioContext() {
-            if (!audioCtx) {
-                audioCtx = new(window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            return audioCtx;
-        }
-
-        function playSound(type) {
+        function playSound(t) {
             if (!soundEnabled) return;
-            try {
-                const ctx = getAudioContext();
-                const now = ctx.currentTime;
-                switch (type) {
-                    case 'click':
-                        playTone(ctx, now, 800, 0.05, 'sine', 0.12);
-                        break;
-                    case 'open':
-                        playTone(ctx, now, 600, 0.06, 'sine', 0.18);
-                        playTone(ctx, now + 0.06, 900, 0.08, 'sine', 0.16);
-                        break;
-                    case 'close':
-                        playTone(ctx, now, 500, 0.06, 'sine', 0.12);
-                        playTone(ctx, now + 0.05, 350, 0.08, 'sine', 0.1);
-                        break;
-                    case 'save':
-                        playTone(ctx, now, 523, 0.1, 'sine', 0.18);
-                        playTone(ctx, now + 0.1, 659, 0.1, 'sine', 0.18);
-                        playTone(ctx, now + 0.2, 784, 0.15, 'sine', 0.22);
-                        break;
-                    case 'chapter':
-                        playNoise(ctx, now, 0.08, 0.08);
-                        playTone(ctx, now + 0.02, 1000, 0.04, 'triangle', 0.08);
-                        break;
-                    case 'favorite':
-                        playTone(ctx, now, 1200, 0.06, 'sine', 0.13);
-                        playTone(ctx, now + 0.06, 1600, 0.08, 'sine', 0.15);
-                        playTone(ctx, now + 0.12, 2000, 0.06, 'sine', 0.1);
-                        break;
-                    case 'delete':
-                        playTone(ctx, now, 200, 0.12, 'triangle', 0.18);
-                        playTone(ctx, now, 150, 0.15, 'sine', 0.12);
-                        break;
-                    case 'updateAll':
-                        for (let i = 0; i < 4; i++) {
-                            playTone(ctx, now + i * 0.05, 600 + i * 200, 0.04, 'triangle', 0.07);
-                        }
-                        playTone(ctx, now + 0.2, 1000, 0.1, 'sine', 0.13);
-                        break;
-                    case 'export':
-                        playTone(ctx, now, 440, 0.1, 'sine', 0.18);
-                        playTone(ctx, now + 0.1, 554, 0.1, 'sine', 0.18);
-                        playTone(ctx, now + 0.2, 659, 0.1, 'sine', 0.18);
-                        playTone(ctx, now + 0.3, 880, 0.2, 'sine', 0.25);
-                        break;
-                    case 'import':
-                        playTone(ctx, now, 300, 0.04, 'square', 0.05);
-                        playTone(ctx, now + 0.06, 400, 0.04, 'square', 0.05);
-                        playTone(ctx, now + 0.12, 500, 0.04, 'square', 0.05);
-                        playTone(ctx, now + 0.18, 700, 0.08, 'sine', 0.1);
-                        break;
-                    case 'cover':
-                        playNoise(ctx, now, 0.04, 0.06);
-                        playTone(ctx, now + 0.02, 1500, 0.03, 'triangle', 0.05);
-                        break;
-                    case 'streak':
-                        [523, 659, 784, 1047].forEach((freq, i) => {
-                            playTone(ctx, now + i * 0.1, freq, 0.12, 'sine', 0.18);
-                        });
-                        break;
-                    default:
-                        playTone(ctx, now, 600, 0.04, 'sine', 0.08);
-                }
-            } catch (e) {}
-        }
-
-        function playTone(ctx, startTime, frequency, duration, waveType, volume) {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = waveType;
-            osc.frequency.setValueAtTime(frequency, startTime);
-            gain.gain.setValueAtTime(volume, startTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(startTime);
-            osc.stop(startTime + duration);
-        }
-
-        function playNoise(ctx, startTime, duration, volume) {
-            const bufferSize = ctx.sampleRate * duration;
-            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-            const source = ctx.createBufferSource();
-            const gain = ctx.createGain();
-            source.buffer = buffer;
-            gain.gain.setValueAtTime(volume, startTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-            source.connect(gain);
-            gain.connect(ctx.destination);
-            source.start(startTime);
-            source.stop(startTime + duration);
-        }
-
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            const btn = document.getElementById('soundToggle');
-            if (soundEnabled) {
-                btn.textContent = '🔊';
-                btn.classList.remove('muted');
-                getAudioContext();
-                playSound('click');
-            } else {
-                btn.textContent = '🔇';
-                btn.classList.add('muted');
-            }
-            localStorage.setItem('bingeSoundEnabled', soundEnabled);
-        }
-
-        // ══════════════════════════════════════
-        // 📦 DATA STORAGE
-        // ══════════════════════════════════════
-        const STORAGE_KEY = 'bingeListV5';
-        const STREAK_KEY = 'bingeStreak';
-        let entryList = [];
-        let editingIndex = -1;
-        let tempCoverData = null;
-        let autoSaveInterval = null;
-        let lastSaveTime = 0;
-        let previousFinishedCount = 0;
-
-        function loadData() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                if (raw) entryList = JSON.parse(raw);
-            } catch (e) { entryList = []; }
-            entryList.sort((a, b) => a.title.localeCompare(b.title));
-            previousFinishedCount = entryList.filter(e => e.status === 'Finished' && getProgressPercent(e) === 100)
-                .length;
-        }
-
-        function saveData(silent = false) {
-            const now = Date.now();
-            if (now - lastSaveTime < 500 && silent) return;
-            lastSaveTime = now;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(entryList));
-            updateStats();
-            updateStreak();
-            checkCompleted();
-            if (!silent) showSaveIndicator();
-        }
-
-        function showSaveIndicator() {
-            const indicator = document.getElementById('saveIndicator');
-            indicator.classList.add('show');
-            clearTimeout(indicator._timeout);
-            indicator._timeout = setTimeout(() => indicator.classList.remove('show'), 1500);
-        }
-
-        function checkCompleted() {
-            const currentFinished = entryList.filter(e => e.status === 'Finished' && getProgressPercent(e) === 100)
-                .length;
-            if (currentFinished > previousFinishedCount) {
-                spawnConfetti(25);
-            }
-            previousFinishedCount = currentFinished;
-        }
-
-        // ══════════════════════════════════════
-        // 🔥 STREAK TRACKING
-        // ══════════════════════════════════════
-        function updateStreak() {
-            const today = new Date().toDateString();
-            let streakData = { lastDate: today, count: 0 };
-            try {
-                const raw = localStorage.getItem(STREAK_KEY);
-                if (raw) streakData = JSON.parse(raw);
-            } catch (e) {}
-            const lastDate = new Date(streakData.lastDate);
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const oldCount = streakData.count;
-            if (today === streakData.lastDate) {} else if (lastDate.toDateString() === yesterday.toDateString()) {
-                streakData.count++;
-                streakData.lastDate = today;
-            } else {
-                streakData.count = 1;
-                streakData.lastDate = today;
-            }
-            localStorage.setItem(STREAK_KEY, JSON.stringify(streakData));
-            const badge = document.getElementById('streakBadge');
-            if (streakData.count > 0) {
-                badge.style.display = 'inline-block';
-                badge.textContent = `🔥 ${streakData.count} day streak!`;
-                if (streakData.count > oldCount && oldCount > 0) {
-                    playSound('streak');
-                    spawnSparkles(window.innerWidth / 2, 120, 15);
-                }
-            }
-        }
-
-        // ══════════════════════════════════════
-        // 📊 STATS
-        // ══════════════════════════════════════
-        function updateStats() {
-            document.getElementById('totalCount').textContent = entryList.length;
-            document.getElementById('ongoingCount').textContent = entryList.filter(e => e.status === 'Ongoing').length;
-            document.getElementById('finishedCount').textContent = entryList.filter(e => e.status === 'Finished').length;
-            document.getElementById('favCount').textContent = entryList.filter(e => e.favorite).length;
-        }
-
-        // ══════════════════════════════════════
-        // 🎨 RENDER HELPERS
-        // ══════════════════════════════════════
-        function getProgressPercent(e) {
-            if (!e.totalChapters || e.totalChapters === 0) return 0;
-            return Math.min(100, Math.round((e.lastChapter / e.totalChapters) * 100));
-        }
-
-        function renderStars(rating) {
-            let html = '';
-            for (let i = 1; i <= 10; i++) {
-                html += i <= rating ? '★' : '<span class="empty">☆</span>';
-            }
-            return html;
-        }
-
-        function getStatusClass(s) { return { 'Ongoing': 'ongoing', 'Finished': 'finished', 'Hiatus': 'hiatus',
-                'Dropped': 'dropped' } [s] || 'ongoing'; }
-
-        function getTypeClass(t) { return { 'Manhwa': 'manhwa', 'Manhua': 'manhua', 'Manga': 'manga' } [t] || 'manhwa'; }
-
-        function getTypeFlag(t) { return { 'Manhwa': '🇰🇷', 'Manhua': '🇨🇳', 'Manga': '🇯🇵' } [t] || '📚'; }
-
-        function getPriorityClass(p) { return { 'High': 'priority-high', 'Medium': 'priority-medium', 'Low': 'priority-low' } [
-                p
-            ] || 'priority-medium'; }
-
-        function getStatusEmoji(s) { return { 'Ongoing': '📖', 'Finished': '✅', 'Hiatus': '⏸️', 'Dropped': '❌' } [s] ||
-            '📚'; }
-
-        // ══════════════════════════════════════
-        // 📋 RENDER LIST
-        // ══════════════════════════════════════
-        function renderList() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const statusFilter = document.getElementById('statusFilter').value;
-            const typeFilter = document.getElementById('typeFilter').value;
-            const sortBy = document.getElementById('sortBy').value;
-            let filtered = [...entryList];
-            if (searchTerm) {
-                filtered = filtered.filter(e =>
-                    e.title.toLowerCase().includes(searchTerm) ||
-                    (e.genres && e.genres.toLowerCase().includes(searchTerm)) ||
-                    (e.notes && e.notes.toLowerCase().includes(searchTerm)) ||
-                    (e.source && e.source.toLowerCase().includes(searchTerm))
-                );
-            }
-            if (statusFilter !== 'all') filtered = filtered.filter(e => e.status === statusFilter);
-            if (typeFilter !== 'all') filtered = filtered.filter(e => e.type === typeFilter);
-            switch (sortBy) {
-                case 'title':
-                    filtered.sort((a, b) => a.title.localeCompare(b.title));
+            const ctx = getCtx();
+            if (!ctx) return;
+            const n = ctx.currentTime;
+            const tn = (f, d, v, w = 'sine', dl = 0) => { const o = ctx.createOscillator(),
+                    g = ctx.createGain();
+                o.type = w;
+                o.frequency.setValueAtTime(f, n + dl);
+                o.frequency.exponentialRampToValueAtTime(f * 1.3, n + dl + d * 0.3);
+                o.frequency.exponentialRampToValueAtTime(f * 0.8, n + dl + d);
+                g.gain.setValueAtTime(v, n + dl);
+                g.gain.exponentialRampToValueAtTime(0.001, n + dl + d);
+                o.connect(g);
+                g.connect(ctx.destination);
+                o.start(n + dl);
+                o.stop(n + dl + d) };
+            switch (t) {
+                case 'click':
+                    tn(1200, 0.04, 0.07);
+                    tn(1600, 0.03, 0.05, 'sine', 0.02);
                     break;
-                case 'rating':
-                    filtered.sort((a, b) => b.rating - a.rating);
+                case 'open':
+                    tn(800, 0.05, 0.1);
+                    tn(1000, 0.04, 0.08, 'sine', 0.03);
+                    tn(1400, 0.03, 0.06, 'sine', 0.06);
                     break;
-                case 'recent':
-                    filtered.sort((a, b) => new Date(b.lastReadDate || b.dateAdded || 0) - new Date(a.lastReadDate || a
-                        .dateAdded || 0));
+                case 'close':
+                    tn(700, 0.04, 0.08);
+                    tn(500, 0.05, 0.06, 'sine', 0.02);
                     break;
-                case 'progress':
-                    filtered.sort((a, b) => getProgressPercent(b) - getProgressPercent(a));
+                case 'save':
+                    tn(660, 0.07, 0.1);
+                    tn(880, 0.07, 0.1, 'sine', 0.06);
+                    tn(1100, 0.08, 0.12, 'sine', 0.12);
                     break;
+                case 'chapter':
+                    tn(900, 0.03, 0.06, 'triangle');
+                    tn(1200, 0.02, 0.05, 'sine', 0.02);
+                    break;
+                case 'favorite':
+                    tn(1400, 0.04, 0.08);
+                    tn(1800, 0.03, 0.06, 'sine', 0.03);
+                    tn(2200, 0.02, 0.05, 'sine', 0.06);
+                    break;
+                case 'delete':
+                    tn(250, 0.08, 0.1, 'triangle');
+                    tn(180, 0.1, 0.08, 'sine', 0.02);
+                    break;
+                case 'updateAll':
+                    for (let i = 0; i < 4; i++) tn(700 + i * 120, 0.02, 0.04, 'triangle', i * 0.03);
+                    tn(1200, 0.05, 0.06, 'sine', 0.12);
+                    break;
+                case 'export':
+                    [523, 659, 784, 1047].forEach((f, i) => tn(f, 0.08, 0.12, 'sine', i * 0.08));
+                    break;
+                case 'import':
+                    [300, 400, 500, 700].forEach((f, i) => tn(f, 0.03, 0.04, 'square', i * 0.04));
+                    break;
+                case 'cover':
+                    tn(1600, 0.02, 0.04, 'triangle');
+                    break;
+                case 'streak':
+                    [523, 659, 784, 1047, 1318].forEach((f, i) => tn(f, 0.06, 0.08, 'sine', i * 0.06));
+                    break;
+                default:
+                    tn(800, 0.02, 0.05);
             }
-            const container = document.getElementById('entryList');
-            const emptyState = document.getElementById('emptyState');
-            if (filtered.length === 0) {
-                container.innerHTML = '';
-                emptyState.style.display = 'block';
-            } else {
-                emptyState.style.display = 'none';
-                container.innerHTML = filtered.map((entry, idx) => {
-                    const realIndex = entryList.indexOf(entry);
-                    const progress = getProgressPercent(entry);
-                    const isComplete = entry.status === 'Finished' && progress === 100;
-                    const genres = entry.genres ? entry.genres.split(',').map(g => g.trim()).filter(g => g) :
-                        [];
-                    const lastReadDate = entry.lastReadDate ? new Date(entry.lastReadDate)
-                        .toLocaleDateString('en-GB', { day: 'numeric', month: 'short',
-                            year: 'numeric' }) : '';
-                    return `
-                    <div class="entry-card ${entry.favorite ? 'favorite' : ''} ${isComplete ? 'completed-100' : ''}" style="animation-delay:${idx * 0.04}s">
-                        <div class="card-inner">
-                            <div class="cover-img" onclick="playSound('cover'); changeCoverDirect(${realIndex})" style="${entry.coverData ? `background-image:url(${entry.coverData});background-size:cover;background-position:center` : ''}">
-                                ${!entry.coverData ? '📸' : ''}
-                                <span class="cover-hint">tap</span>
-                            </div>
-                            <div class="card-info">
-                                <div class="card-title">
-                                    ${entry.favorite ? '<span class="fav-star">⭐</span>' : ''}
-                                    ${escapeHTML(entry.title)}
-                                </div>
-                                <div class="card-meta">
-                                    <span class="tag ${getTypeClass(entry.type)}">${getTypeFlag(entry.type)} ${entry.type}</span>
-                                    <span class="tag ${getStatusClass(entry.status)}">${getStatusEmoji(entry.status)} ${entry.status}</span>
-                                    ${entry.priority !== 'Medium' ? `<span class="tag ${getPriorityClass(entry.priority)}">${entry.priority}</span>` : ''}
-                                </div>
-                                <div class="progress-wrap">
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width:${progress}%"></div>
-                                    </div>
-                                    <div class="progress-text">📄 Ch. ${entry.lastChapter || 0} / ${entry.totalChapters || '?'} (${progress}%)</div>
-                                </div>
-                                ${entry.rating > 0 ? `<div class="stars">${renderStars(entry.rating)} <span style="font-size:10px;color:var(--text-light)">${entry.rating}/10</span></div>` : ''}
-                                ${genres.length > 0 ? `<div class="tag-row">${genres.map(g => `<span class="tag genre">${escapeHTML(g)}</span>`).join('')}</div>` : ''}
-                                ${entry.source ? `<div style="font-size:10px;color:var(--text-light)">📱 ${escapeHTML(entry.source)}</div>` : ''}
-                                ${entry.notes ? `<div style="font-size:10px;color:var(--text-light);margin-top:3px;font-style:italic">💬 ${escapeHTML(entry.notes.substring(0, 50))}${entry.notes.length > 50 ? '...' : ''}</div>` : ''}
-                                ${lastReadDate ? `<div style="font-size:9px;color:#c0b8c0;margin-top:2px">🕐 ${lastReadDate}</div>` : ''}
-                                <div class="card-actions">
-                                    <button class="btn-sm btn-chapter" onclick="playSound('chapter'); quickAddChapter(${realIndex})">📄 +1 Ch</button>
-                                    <button class="btn-sm btn-edit" onclick="playSound('click'); openEditModal(${realIndex})">✏️</button>
-                                    <button class="btn-sm btn-fav" onclick="toggleFavorite(event, ${realIndex})">${entry.favorite ? '💛' : '🤍'}</button>
-                                    <button class="btn-sm btn-delete" onclick="playSound('delete'); deleteEntry(${realIndex})">🗑️</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
-                }).join('');
-            }
-            updateStats();
         }
 
-        function escapeHTML(str) {
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
+        function toggleSound() { soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇'; if (soundEnabled) { getCtx();
+                playSound('click'); }
+            localStorage.setItem('b_s', soundEnabled); }
 
-        // ══════════════════════════════════════
-        // ⚡ ACTIONS
-        // ══════════════════════════════════════
-        function quickAddChapter(index) {
-            const entry = entryList[index];
-            entry.lastChapter = (entry.lastChapter || 0) + 1;
-            entry.lastReadDate = new Date().toISOString();
-            if (entry.totalChapters && entry.lastChapter > entry.totalChapters) {
-                entry.totalChapters = entry.lastChapter;
-            }
-            if (getProgressPercent(entry) === 100 && entry.status === 'Ongoing') {
-                spawnSparkles(window.innerWidth / 2, window.innerHeight / 2, 20);
-            }
-            saveData();
-            renderList();
-        }
+        function startMusic() { const ctx = getCtx(); if (!ctx || musicInterval) return; const sc = [262, 294, 330, 392, 440,
+                523, 588, 660, 784, 880, 1047
+            ];
+            let i = 0;
+            musicInterval = setInterval(() => { if (!musicEnabled) return; const f = sc[i % sc.length],
+                    d = 0.3 + Math.random() * 0.35; const o = ctx.createOscillator(),
+                    g = ctx.createGain();
+                o.type = 'sine';
+                o.frequency.setValueAtTime(f, ctx.currentTime);
+                g.gain.setValueAtTime(musicVolume * 0.18, ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + d);
+                o.connect(g);
+                g.connect(ctx.destination);
+                o.start(ctx.currentTime);
+                o.stop(ctx.currentTime + d); const o2 = ctx.createOscillator(),
+                    g2 = ctx.createGain();
+                o2.type = 'sine';
+                o2.frequency.setValueAtTime(f * 2, ctx.currentTime);
+                g2.gain.setValueAtTime(musicVolume * 0.05, ctx.currentTime);
+                g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + d * 0.7);
+                o2.connect(g2);
+                g2.connect(ctx.destination);
+                o2.start(ctx.currentTime);
+                o2.stop(ctx.currentTime + d * 0.7);
+                i++ }, 400); }
 
-        function toggleFavorite(event, index) {
+        function stopMusic() { if (musicInterval) { clearInterval(musicInterval);
+                musicInterval = null; } }
+
+        function toggleMusic() { musicEnabled = !musicEnabled;
+            document.getElementById('musicToggle').textContent = musicEnabled ? '🎶' : '🎵';
+            musicEnabled ? (getCtx(), startMusic()) : stopMusic();
+            localStorage.setItem('b_m', musicEnabled); }
+
+        function setMusicVolume(v) { musicVolume = v / 100;
+            localStorage.setItem('b_mv', v); }
+
+        // ═══════════════ PETALS ═══════════════
+        (function() { const c = document.getElementById('petalsCanvas'),
+                ctx = c.getContext('2d'); let p = []; const sh = ['🌸', '💮', '✿', '🌷', '🩷', '･'];
+
+            function rs() { c.width = innerWidth;
+                c.height = innerHeight; }
+            rs();
+            addEventListener('resize', rs); for (let i = 0; i < 16; i++) p.push({ x: Math.random() * c.width, y: Math
+                    .random() * c.height, s: 6 + Math.random() * 10, sp: 0.2 + Math.random() * 0.7, wb: Math.random() *
+                    1.4 - 0.7, ws: 0.007 + Math.random() * 0.013, sym: sh[Math.floor(Math.random() * sh.length)],
+                    op: 0.18 + Math.random() * 0.32, rot: Math.random() * 360, rs: (Math.random() - 0.5) * 1.1 });
+
+            function anim() { ctx.clearRect(0, 0, c.width, c.height);
+                p.forEach(pt => { pt.y += pt.sp;
+                    pt.x += Math.sin(pt.y * pt.ws) * pt.wb;
+                    pt.rot += pt.rs; if (pt.y > c.height + 30) { pt.y = -22;
+                        pt.x = Math.random() * c.width; } ctx.save();
+                    ctx.globalAlpha = pt.op;
+                    ctx.translate(pt.x, pt.y);
+                    ctx.rotate(pt.rot * Math.PI / 180);
+                    ctx.font = pt.s + 'px serif';
+                    ctx.fillText(pt.sym, -pt.s / 2, pt.s / 2);
+                    ctx.restore() });
+                requestAnimationFrame(anim) }
+            anim() })();
+
+        function spawnSparkles(x, y, n = 6) { const ct = document.getElementById('sparkleContainer'),
+                em = ['✨', '⭐', '💫', '🌟', '✦', '✧', '💖', '🎀', '🫧']; for (let i = 0; i < n; i++) { const s = document
+                    .createElement('span');
+                s.className = 'sparkle-particle';
+                s.textContent = em[Math.floor(Math.random() * em.length)];
+                s.style.left = x + 'px';
+                s.style.top = y + 'px';
+                s.style.setProperty('--dx', (Math.random() - 0.5) * 70 + 'px');
+                s.style.setProperty('--dy', (Math.random() - 0.5) * 70 - 20 + 'px');
+                s.style.fontSize = (7 + Math.random() * 12) + 'px';
+                s.style.animationDuration = (0.35 + Math.random() * 0.5) + 's';
+                ct.appendChild(s);
+                setTimeout(() => s.remove(), 1000) } }
+
+        function spawnHearts(x, y, n = 5) { const hh = ['💖', '💕', '💗', '💝', '❤️', '🩷']; for (let i = 0; i < n; i++) { const h =
+                    document.createElement('span');
+                h.className = 'heart-burst';
+                h.textContent = hh[Math.floor(Math.random() * hh.length)];
+                h.style.left = (x + (Math.random() - 0.5) * 45) + 'px';
+                h.style.top = (y + (Math.random() - 0.5) * 18) + 'px';
+                h.style.fontSize = (10 + Math.random() * 12) + 'px';
+                document.body.appendChild(h);
+                setTimeout(() => h.remove(), 700) } }
+
+        function spawnConfetti(n = 12) { const em = ['🎉', '🎊', '🌸', '💮', '⭐', '💖', '🎀', '📚', '🌈', '🫧']; for (let i = 0; i <
+                n; i++) { const c = document.createElement('span');
+                c.className = 'confetti-piece';
+                c.textContent = em[Math.floor(Math.random() * em.length)];
+                c.style.left = Math.random() * innerWidth + 'px';
+                c.style.top = -(12 + Math.random() * 40) + 'px';
+                c.style.fontSize = (9 + Math.random() * 12) + 'px';
+                document.body.appendChild(c);
+                setTimeout(() => c.remove(), 2200) } }
+
+        // ═══════════════ DATA ═══════════════
+        const STORE = 'b_v9',
+            STREAK_K = 'b_sk';
+        let entries = [],
+            editIdx = -1,
+            tempCover = null,
+            prevDone = 0,
+            lastSave = 0,
+            rto = null,
+            todayStr = new Date().toDateString();
+
+        function load() { const r = localStorage.getItem(STORE); if (r) try { entries = JSON.parse(r); } catch (e) { entries =
+                []; } if (!entries.length) { for (const k of ['binge_v8', 'b_v9']) { const x = localStorage.getItem(k); if (
+                        x) try { entries = JSON.parse(x); if (entries.length) { localStorage.setItem(STORE, x); break; } } catch (
+                    e) {} } }
+            entries.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+            prevDone = entries.filter(e => e.status === 'Finished' && getPct(e) === 100).length; }
+
+        function save(s = false) { const n = Date.now(); if (n - lastSave < 300 && s) return;
+            lastSave = n; try { localStorage.setItem(STORE, JSON.stringify(entries));
+                updateStats();
+                updateStreak(); if (!s) { const t = document.getElementById('saveToast');
+                    t.classList.add('show');
+                    clearTimeout(t._t);
+                    t._t = setTimeout(() => t.classList.remove('show'), 1200) } } catch (e) {} }
+
+        function updateStreak() { let sd = { lastDate: todayStr, count: 0 }; try { const r = localStorage.getItem(
+                STREAK_K); if (r) sd = JSON.parse(r); } catch (e) {} const ld = new Date(sd.lastDate),
+                yd = new Date();
+            yd.setDate(yd.getDate() - 1); const oc = sd.count; if (todayStr === sd.lastDate) {} else if (ld.toDateString() ===
+                yd.toDateString()) { sd.count++;
+                sd.lastDate = todayStr } else { sd.count = 1;
+                sd.lastDate = todayStr }
+            localStorage.setItem(STREAK_K, JSON.stringify(sd)); const b = document.getElementById('streakBadge'); if (sd.count >
+                0) { b.style.display = 'inline-block';
+                b.textContent = `🔥 ${sd.count} day streak`; if (sd.count > oc && oc > 0) { playSound('streak');
+                    spawnSparkles(innerWidth / 2, 120, 8) } } }
+
+        function updateStats() { document.getElementById('totalCount').textContent = entries.length;
+            document.getElementById('ongoingCount').textContent = entries.filter(e => e.status === 'Ongoing').length;
+            document.getElementById('finishedCount').textContent = entries.filter(e => e.status === 'Finished').length;
+            document.getElementById('favCount').textContent = entries.filter(e => e.favorite).length; }
+
+        function getPct(e) { return (!e.totalChapters || e.totalChapters === 0) ? 0 : Math.min(100, Math.round((e
+                .lastChapter / e.totalChapters) * 100)); }
+
+        function starsHTML(r) { let h = ''; for (let i = 1; i <= 10; i++) h += i <= r ? '★' :
+                '<span class="empty">☆</span>'; return h; }
+
+        function sCls(s) { return { Ongoing: 'ongoing', Finished: 'finished', Hiatus: 'hiatus', Dropped: 'dropped' } [s] ||
+            'ongoing'; }
+
+        function tCls(t) { return { Manhwa: 'manhwa', Manhua: 'manhua', Manga: 'manga', Comic: 'comic' } [t] || 'manhwa'; }
+
+        function tFlg(t) { return { Manhwa: '🇰🇷', Manhua: '🇨🇳', Manga: '🇯🇵', Comic: '💬' } [t] || '📚'; }
+
+        function esc(s) { const d = document.createElement('div');
+            d.textContent = s || ''; return d.innerHTML; }
+
+        // ═══════════════ RENDER ═══════════════
+        function debouncedRender() { clearTimeout(rto);
+            rto = setTimeout(renderList, 100); }
+
+        function renderList() { const q = document.getElementById('searchInput').value.toLowerCase(),
+                sf = document.getElementById('statusFilter').value,
+                tf = document.getElementById('typeFilter').value,
+                sb = document.getElementById('sortBy').value; let f = [...entries]; if (q) f = f.filter(e => (e.title ||
+                    '').toLowerCase().includes(q) || (e.genres || '').toLowerCase().includes(q) || (e.notes || '')
+                .toLowerCase().includes(q) || (e.altTitles || '').toLowerCase().includes(q) || (e.customTags || '')
+                .toLowerCase().includes(q)); if (sf !== 'all') f = f.filter(e => e.status === sf); if (tf !== 'all') f = f
+                .filter(e => e.type === tf); switch (sb) { case 'title':
+                    f.sort((a, b) => (a.title || '').localeCompare(b.title || '')); break; case 'rating':
+                    f.sort((a, b) => (b.rating || 0) - (a.rating || 0)); break; case 'recent':
+                    f.sort((a, b) => new Date(b.lastReadDate || b.dateAdded || 0) - new Date(a.lastReadDate || a.dateAdded ||
+                        0)); break; case 'progress':
+                    f.sort((a, b) => getPct(b) - getPct(a)); break } const ct = document.getElementById('entryList'),
+                em = document.getElementById('emptyState'); if (!f.length) { ct.innerHTML = '';
+                em.style.display = 'block' } else { em.style.display = 'none';
+                ct.innerHTML = f.map((e, i) => { const ri = entries.indexOf(e),
+                        pct = getPct(e),
+                        done = e.status === 'Finished' && pct === 100,
+                        gn = (e.genres || '').split(',').map(g => g.trim()).filter(g => g),
+                        ctags = (e.customTags || '').split(',').map(g => g.trim()).filter(g => g),
+                        lrd = e.lastReadDate ? new Date(e.lastReadDate).toLocaleDateString('en-GB', { day: 'numeric',
+                            month: 'short', year: 'numeric' }) : '',
+                        emotion = e.emotion || ''; return `
+                <div class="entry-card ${e.favorite?'favorite':''} ${done?'completed-glow':''}" style="animation-delay:${i*0.015}s">
+                  <div class="card-row">
+                    <div class="cover-thumb" onclick="changeCoverDirect(${ri})" style="${e.coverData?`background-image:url(${e.coverData});background-size:cover;background-position:center`:''}">
+                      ${!e.coverData?'📸':''}
+                    </div>
+                    <div class="card-content">
+                      <div class="card-title-text">${e.favorite?'<span class="fav-icon">⭐</span> ':''}${esc(e.title||'Untitled')}</div>
+                      <div class="card-meta-row">
+                        <span class="tag ${tCls(e.type)}">${tFlg(e.type)} ${e.type||'Manhwa'}</span>
+                        <span class="tag ${sCls(e.status)}">${e.status||'Ongoing'}</span>
+                        ${emotion?`<span class="tag emotion">${emotion}</span>`:''}
+                        ${e.releaseDay?`<span class="tag genre">📅 ${e.releaseDay}</span>`:''}
+                      </div>
+                      <div class="progress-mini"><div class="progress-fill-mini" style="width:${pct}%"></div></div>
+                      <div class="progress-label">Ch. ${e.lastChapter||0}/${e.totalChapters||'?'} (${pct}%)</div>
+                      ${e.rating>0?`<div class="stars-mini">${starsHTML(e.rating)} <span style="font-size:7px">${e.rating}/10</span></div>`:''}
+                      ${gn.length?`<div class="card-meta-row">${gn.map(g=>`<span class="tag genre">${esc(g)}</span>`).join('')}</div>`:''}
+                      ${ctags.length?`<div class="card-meta-row">${ctags.map(g=>`<span class="tag" style="background:#fff0f5;color:#c44a7a">${esc(g)}</span>`).join('')}</div>`:''}
+                      ${lrd?`<div style="font-size:7px;color:#b0a8b0;margin-top:1px">🕐 ${lrd}</div>`:''}
+                      <div class="card-actions-row">
+                        <button class="btn-action btn-ch" onclick="quickAdd(${ri})">📄 +1</button>
+                        <button class="btn-action btn-rd" onclick="openRead(${ri})">📖 Read</button>
+                        <button class="btn-action btn-ed" onclick="openEdit(${ri})">✏️</button>
+                        <button class="btn-action btn-fv" onclick="toggleFav(event,${ri})">${e.favorite?'💛':'🤍'}</button>
+                        <button class="btn-action btn-dl" onclick="delEntry(${ri})">🗑️</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>` }).join('') }
+            updateStats() }
+
+        // ═══════════════ ACTIONS ═══════════════
+        function quickAdd(i) { const e = entries[i];
+            e.lastChapter = (e.lastChapter || 0) + 1;
+            e.lastReadDate = new Date().toISOString(); if (e.totalChapters && e.lastChapter > e.totalChapters) e
+                .totalChapters = e.lastChapter; if (getPct(e) === 100 && e.status === 'Ongoing') spawnConfetti(14);
+            playSound('chapter');
+            save();
+            renderList() }
+
+        function toggleFav(ev, i) { entries[i].favorite = !entries[i].favorite; if (entries[i].favorite && ev) spawnHearts(ev
+                .clientX || innerWidth / 2, ev.clientY || innerHeight / 2, 5);
             playSound('favorite');
-            entryList[index].favorite = !entryList[index].favorite;
-            if (entryList[index].favorite && event) {
-                spawnHearts(event.clientX || window.innerWidth / 2, event.clientY || window.innerHeight / 2, 8);
-            }
-            saveData();
-            renderList();
-        }
+            save();
+            renderList() }
 
-        function deleteEntry(index) {
-            if (confirm(`Delete "${entryList[index].title}"? This cannot be undone. 💔`)) {
-                entryList.splice(index, 1);
-                saveData();
-                renderList();
-            }
-        }
+        function delEntry(i) { if (confirm(`Delete "${entries[i].title}"? 💔`)) { entries.splice(i, 1);
+                playSound('delete');
+                save();
+                renderList() } }
 
-        function updateAllOngoing() {
-            const ongoing = entryList.filter(e => e.status === 'Ongoing');
-            if (ongoing.length === 0) { alert('No ongoing entries! 📭'); return; }
-            if (confirm(`Add +1 chapter to all ${ongoing.length} ongoing entries?`)) {
-                playSound('updateAll');
-                spawnSparkles(window.innerWidth / 2, window.innerHeight / 2, 15);
-                ongoing.forEach(e => {
-                    e.lastChapter = (e.lastChapter || 0) + 1;
-                    e.lastReadDate = new Date().toISOString();
-                });
-                saveData();
-                renderList();
-            }
-        }
+        function updateAllOngoing() { const og = entries.filter(e => e.status === 'Ongoing'); if (!og.length) { alert(
+                'No ongoing entries!'); return } if (confirm(`+1 chapter to ${og.length} ongoing?`)) { playSound(
+                    'updateAll');
+                spawnSparkles(innerWidth / 2, innerHeight / 2, 8);
+                og.forEach(e => { e.lastChapter = (e.lastChapter || 0) + 1;
+                    e.lastReadDate = new Date().toISOString() });
+                save();
+                renderList() } }
 
-        function changeCoverDirect(index) {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.onchange = function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
+        function changeCoverDirect(i) { const inp = document.createElement('input');
+            inp.type = 'file';
+            inp.accept = 'image/*';
+            inp.onchange = function(ev) { if (!ev.target.files[0]) return;
                 playSound('cover');
-                resizeAndSetCover(file, (dataUrl) => {
-                    entryList[index].coverData = dataUrl;
-                    saveData();
-                    renderList();
-                });
-            };
-            input.click();
-        }
+                resizeImg(ev.target.files[0], url => { entries[i].coverData = url;
+                    save();
+                    renderList() }) };
+            inp.click() }
 
-        function resizeAndSetCover(file, callback) {
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const maxW = 300,
-                        maxH = 420;
-                    let w = img.width,
-                        h = img.height;
-                    if (w > maxW) { h = h * (maxW / w);
-                        w = maxW; }
-                    if (h > maxH) { w = w * (maxH / h);
-                        h = maxH; }
-                    canvas.width = w;
-                    canvas.height = h;
-                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                    callback(canvas.toDataURL('image/jpeg', 0.7));
-                };
-                img.src = ev.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
+        function resizeImg(file, cb) { const r = new FileReader();
+            r.onload = function(ev) { const img = new Image();
+                img.onload = function() { const cv = document.createElement('canvas'),
+                        mw = 240,
+                        mh = 340; let w = img.width,
+                        h = img.height; if (w > mw) { h *= mw / w;
+                        w = mw } if (h > mh) { w *= mh / h;
+                        h = mh }
+                    cv.width = w;
+                    cv.height = h;
+                    cv.getContext('2d').drawImage(img, 0, 0, w, h);
+                    cb(cv.toDataURL('image/jpeg', 0.7)) };
+                img.src = ev.target.result };
+            r.readAsDataURL(file) }
 
-        // ══════════════════════════════════════
-        // 📝 MODAL
-        // ══════════════════════════════════════
-        function openAddModal() {
-            editingIndex = -1;
-            tempCoverData = null;
+        // ═══════════════ READ LINKS ═══════════════
+        let readIdx = -1;
+
+        function openRead(i) { readIdx = i;
+            document.getElementById('readModalOverlay').style.display = 'flex';
+            document.getElementById('readLinksList').innerHTML =
+                '<div style="text-align:center;padding:10px;font-size:10px">🔍 Searching...</div>';
+            searchReads(entries[i].title) }
+
+        function closeReadModal() { document.getElementById('readModalOverlay').style.display = 'none';
+            readIdx = -1 }
+
+        async function searchReads(title) { const list = document.getElementById('readLinksList'),
+                links = []; try { const r = await fetch(
+                    `https://api.mangadex.org/manga?title=${encodeURIComponent(title)}&limit=3`, { signal: AbortSignal
+                        .timeout(3500) }); if (r.ok) { const d = await r.json(); for (const m of d.data || []) links
+                        .push({ label: `📖 MangaDex: ${m.attributes.title?.en||title}`,
+                            url: `https://mangadex.org/title/${m.id}` }) } } catch (e) {} try { const q =
+                    `query($s:String){Page(perPage:2){media(search:$s,type:MANGA){title{romaji english}siteUrl}}}`; const
+                    r = await fetch('https://graphql.anilist.co', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ query: q, variables: { s: title } }), signal: AbortSignal.timeout(3500) }); if (
+                        r.ok) { const d = await r.json(); for (const m of d.data?.Page?.media || []) links.push({ label: `📚 AniList: ${m.title.romaji||title}`,
+                            url: m.siteUrl }) } } catch (e) {}
+            links.push({ label: '🌐 Webtoon', url: `https://www.webtoons.com/en/search?keyword=${encodeURIComponent(title)}` });
+            links.push({ label: '🔍 Google search', url: `https://www.google.com/search?q=${encodeURIComponent(title+'+read+online')}` });
+            list.innerHTML = links.length ? links.map(l =>
+                `<div class="read-link-row"><span>${l.label}</span><a href="${l.url}" target="_blank" onclick="playSound('click')">Open ↗</a></div>`
+                ).join('') : '<div style="text-align:center;padding:8px;font-size:10px">No links. Try web search.</div>' }
+
+        function searchReadLinksWeb() { const title = entries[readIdx]?.title || '';
+            window.open(`https://www.google.com/search?q=${encodeURIComponent(title+'+read+online')}`, '_blank');
+            playSound('click') }
+
+        // ═══════════════ ONLINE SEARCH (Multi-Source) ═══════════════
+        async function searchOnline() { const q = document.getElementById('onlineSearchInput').value.trim(); if (!q) return;
+            const rd = document.getElementById('searchResults');
+            rd.style.display = 'block';
+            rd.innerHTML = '<div style="text-align:center;padding:10px;font-size:10px">🔍 Searching 4 sources...</div>'; const
+                all = [],
+                seen = new Set(); try { const gql =
+                    `query($s:String){Page(perPage:6){media(search:$s,type:MANGA){id title{romaji english native}format status chapters genres coverImage{large}}}}}`
+                ; const r = await fetch('https://graphql.anilist.co', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: gql, variables: { s: q } }), signal: AbortSignal.timeout(4000) }); if (r
+                    .ok) { const d = await r.json(); for (const m of d.data?.Page?.media || []) { const k = m.id +
+                            '_al'; if (seen.has(k)) continue;
+                    seen.add(k); const t = m.title.romaji || m.title.english || m.title.native || '?'; let tp = 'Manga'; if (
+                        m.format === 'MANHWA') tp = 'Manhwa'; if (m.format === 'MANHUA') tp = 'Manhua';
+                    all.push({ title: t, alt: [m.title.english, m.title.native].filter(x => x && x !== t).join(', '),
+                        type: tp, status: m.status === 'FINISHED' ? 'Finished' : m.status === 'RELEASING' ?
+                        'Ongoing' : m.status || '?', chapters: m.chapters || '?', genres: (m.genres || []).slice(0, 4)
+                        .join(', '), cover: m.coverImage?.large || '', source: 'AniList' }) } } } catch (e) {} try { const
+                    r = await fetch(`https://kitsu.io/api/edge/manga?filter[text]=${encodeURIComponent(q)}&page[limit]=5`, { signal: AbortSignal
+                        .timeout(4000) }); if (r.ok) { const d = await r.json(); for (const m of d.data || []) { const k =
+                            m.id + '_kt'; if (seen.has(k)) continue;
+                    seen.add(k); const a = m.attributes || {}; const t = a.canonicalTitle || a.titles?.en || a.titles
+                        ?.en_jp || '?';
+                    all.push({ title: t, alt: [a.titles?.ja_jp, a.titles?.ko_kr].filter(x => x && x !== t).join(', '),
+                        type: a.subtype === 'manhwa' ? 'Manhwa' : a.subtype === 'manhua' ? 'Manhua' : 'Manga',
+                        status: a.status === 'finished' ? 'Finished' : a.status === 'current' ? 'Ongoing' : a
+                        .status || '?', chapters: a.chapterCount || '?', genres: '', cover: a.posterImage?.large ||
+                        '', source: 'Kitsu' }) } } } catch (e) {} try { const r = await fetch(
+                    `https://api.mangadex.org/manga?title=${encodeURIComponent(q)}&limit=5&includes[]=cover_art`, { signal: AbortSignal
+                        .timeout(4000) }); if (r.ok) { const d = await r.json(); for (const m of d.data || []) { const k =
+                            m.id + '_md'; if (seen.has(k)) continue;
+                    seen.add(k); const a = m.attributes || {}; const t = a.title?.en || Object.values(a.title || {})[
+                        0
+                    ] || '?'; const cf = m.relationships?.find(rr => rr.type === 'cover_attr')?.attributes?.fileName ||
+                        ''; const cv = cf ? `https://uploads.mangadex.org/covers/${m.id}/${cf}.256.jpg` : '';
+                    all.push({ title: t, alt: '', type: a.originalLanguage === 'ko' ? 'Manhwa' : a
+                            .originalLanguage === 'zh' ? 'Manhua' : 'Manga', status: a.status === 'completed' ?
+                            'Finished' : a.status === 'ongoing' ? 'Ongoing' : a.status || '?', chapters: a
+                            .lastChapter || '?', genres: (a.tags || []).slice(0, 4).map(tg => tg.attributes?.name
+                                ?.en).filter(Boolean).join(', '), cover: cv, source: 'MangaDex' }) } } } catch (e) {} try {
+                const r = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q+' comic')}&maxResults=4`, { signal: AbortSignal
+                        .timeout(3500) }); if (r.ok) { const d = await r.json(); for (const item of d.items || []) { const
+                            k = item.id + '_gb'; if (seen.has(k)) continue;
+                    seen.add(k); const info = item.volumeInfo || {};
+                    all.push({ title: info.title || '?', alt: info.subtitle || '', type: 'Comic', status: '?',
+                        chapters: info.pageCount || '?', genres: (info.categories || []).slice(0, 3).join(', '),
+                        cover: info.imageLinks?.thumbnail || '', source: 'Google Books' }) } } } catch (e) {} const uniq =
+                [],
+                ts = new Set(); for (const r of all) { const nm = r.title.toLowerCase().replace(/[^a-z0-9]/g, ''); if (ts
+                    .has(nm)) continue;
+                ts.add(nm);
+                uniq.push(r) } if (!uniq.length) { rd.innerHTML =
+                    '<div style="text-align:center;padding:10px;font-size:10px">😢 No results. Try different keywords.</div>'; return }
+            rd.innerHTML = uniq.slice(0, 12).map(r => `
+            <div class="search-result-row" onclick="autoFill('${esc(r.title).replace(/'/g,"&#39;")}','${esc(r.alt).replace(/'/g,"&#39;")}','${r.type}','${r.status}','${r.chapters}','${esc(r.genres).replace(/'/g,"&#39;")}','${r.cover}')">
+              ${r.cover?`<img src="${r.cover}" onerror="this.remove()">`:'<div style="width:30px;height:42px;border-radius:5px;background:var(--pink-light);display:flex;align-items:center;justify-content:center;font-size:18px">📸</div>'}
+              <div style="flex:1;font-size:9px"><b>${esc(r.title)}</b> <span class="search-source-tag">${r.source}</span><br>${tFlg(r.type)} ${r.type} · ${r.status} · Ch ${r.chapters}</div>
+            </div>`).join('') }
+
+        function autoFill(title, alt, type, status, ch, gen, cover) { document.getElementById('inputTitle').value = title;
+            document.getElementById('inputAltTitles').value = alt;
+            document.getElementById('inputType').value = type;
+            document.getElementById('inputStatus').value = status;
+            document.getElementById('inputTotalChapters').value = ch === '?' ? '' : ch;
+            document.getElementById('inputGenres').value = gen; if (cover && cover !== 'undefined') { tempCover = cover;
+                setCoverPrev(cover) }
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('onlineSearchInput').value = '';
+            playSound('click');
+            spawnSparkles(innerWidth / 2, innerHeight / 2, 4) }
+
+        // ═══════════════ MODAL ═══════════════
+        function openAddModal() { editIdx = -1;
+            tempCover = null;
             document.getElementById('modalTitle').textContent = '🌸 Add New Entry';
-            resetModalFields();
+            resetForm();
             document.getElementById('modalOverlay').style.display = 'flex';
-            setTimeout(() => document.getElementById('inputTitle').focus(), 300);
-        }
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('onlineSearchInput').value = '';
+            playSound('open');
+            setTimeout(() => document.getElementById('inputTitle').focus(), 200) }
 
-        function openEditModal(index) {
-            editingIndex = index;
-            const e = entryList[index];
-            tempCoverData = e.coverData || null;
+        function openEdit(i) { editIdx = i; const e = entries[i];
+            tempCover = e.coverData || null;
             document.getElementById('modalTitle').textContent = '✏️ Edit Entry';
-            setCoverPreview(e.coverData);
-            document.getElementById('inputTitle').value = e.title;
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('onlineSearchInput').value = '';
+            setCoverPrev(e.coverData);
+            document.getElementById('inputTitle').value = e.title || '';
+            document.getElementById('inputAltTitles').value = e.altTitles || '';
             document.getElementById('inputType').value = e.type || 'Manhwa';
-            document.getElementById('inputStatus').value = e.status;
+            document.getElementById('inputStatus').value = e.status || 'Ongoing';
+            document.getElementById('inputEmotion').value = e.emotion || '';
             document.getElementById('inputLastChapter').value = e.lastChapter || 0;
             document.getElementById('inputTotalChapters').value = e.totalChapters || '';
             document.getElementById('inputRating').value = e.rating || 0;
             document.getElementById('inputGenres').value = e.genres || '';
+            document.getElementById('inputCustomTags').value = e.customTags || '';
             document.getElementById('inputPriority').value = e.priority || 'Medium';
+            document.getElementById('inputReleaseDay').value = e.releaseDay || '';
             document.getElementById('inputSource').value = e.source || '';
             document.getElementById('inputNotes').value = e.notes || '';
             updateRatingDisplay();
             document.getElementById('modalOverlay').style.display = 'flex';
-        }
+            playSound('click') }
 
-        function resetModalFields() {
+        function resetForm() { ['inputTitle', 'inputAltTitles', 'inputLastChapter', 'inputTotalChapters', 'inputGenres',
+                'inputCustomTags', 'inputSource', 'inputNotes'
+            ].forEach(id => document.getElementById(id).value = '');
             document.getElementById('coverPreview').src = '';
             document.getElementById('coverPreview').style.backgroundImage = '';
             document.getElementById('coverPreview').style.border = '3px dashed #e8c8d8';
-            document.getElementById('inputTitle').value = '';
             document.getElementById('inputType').value = 'Manhwa';
             document.getElementById('inputStatus').value = 'Ongoing';
-            document.getElementById('inputLastChapter').value = '';
-            document.getElementById('inputTotalChapters').value = '';
+            document.getElementById('inputEmotion').value = '';
             document.getElementById('inputRating').value = 0;
-            document.getElementById('inputGenres').value = '';
             document.getElementById('inputPriority').value = 'Medium';
-            document.getElementById('inputSource').value = '';
-            document.getElementById('inputNotes').value = '';
-            updateRatingDisplay();
-        }
+            document.getElementById('inputReleaseDay').value = '';
+            updateRatingDisplay() }
 
-        function setCoverPreview(dataUrl) {
-            const preview = document.getElementById('coverPreview');
-            if (dataUrl) {
-                preview.src = dataUrl;
-                preview.style.backgroundImage = `url(${dataUrl})`;
-                preview.style.backgroundSize = 'cover';
-                preview.style.backgroundPosition = 'center';
-                preview.style.border = '3px solid var(--pink)';
-            } else {
-                preview.src = '';
-                preview.style.backgroundImage = '';
-                preview.style.border = '3px dashed #e8c8d8';
-            }
-        }
+        function setCoverPrev(url) { const p = document.getElementById('coverPreview'); if (url) { p.src = url;
+                p.style.backgroundImage = `url(${url})`;
+                p.style.backgroundSize = 'cover';
+                p.style.backgroundPosition = 'center';
+                p.style.border = '3px solid var(--pink)' } else { p.src = '';
+                p.style.backgroundImage = '';
+                p.style.border = '3px dashed #e8c8d8' } }
 
-        function closeModal() {
-            document.getElementById('modalOverlay').style.display = 'none';
-            editingIndex = -1;
-            tempCoverData = null;
-        }
+        function closeModal() { document.getElementById('modalOverlay').style.display = 'none';
+            editIdx = -1;
+            tempCover = null;
+            playSound('close') }
 
-        function handleCoverUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+        function handleCoverUpload(ev) { if (!ev.target.files[0]) return;
             playSound('click');
-            resizeAndSetCover(file, (dataUrl) => {
-                tempCoverData = dataUrl;
-                setCoverPreview(dataUrl);
-            });
-        }
+            resizeImg(ev.target.files[0], url => { tempCover = url;
+                setCoverPrev(url) }) }
 
-        function updateRatingDisplay() {
-            const rating = parseInt(document.getElementById('inputRating').value) || 0;
-            document.getElementById('ratingDisplay').textContent = '★'.repeat(rating) + '☆'.repeat(10 - rating);
-        }
+        function updateRatingDisplay() { const r = parseInt(document.getElementById('inputRating').value) || 0;
+            document.getElementById('ratingDisplay').textContent = '★'.repeat(r) + '☆'.repeat(10 - r) }
 
-        function saveEntry() {
-            const title = document.getElementById('inputTitle').value.trim();
-            if (!title) { alert('⚠️ Please enter a title! 📚');
-                document.getElementById('inputTitle').focus(); return; }
-            const entry = {
-                title,
+        function saveEntry() { const title = document.getElementById('inputTitle').value.trim(); if (!title) { alert(
+                '⚠️ Please enter a title!');
+                document.getElementById('inputTitle').focus(); return } const entry = { title,
+                altTitles: document.getElementById('inputAltTitles').value.trim(),
                 type: document.getElementById('inputType').value,
                 status: document.getElementById('inputStatus').value,
+                emotion: document.getElementById('inputEmotion').value,
                 lastChapter: parseInt(document.getElementById('inputLastChapter').value) || 0,
                 totalChapters: parseInt(document.getElementById('inputTotalChapters').value) || 0,
                 rating: parseInt(document.getElementById('inputRating').value) || 0,
                 genres: document.getElementById('inputGenres').value.trim(),
+                customTags: document.getElementById('inputCustomTags').value.trim(),
                 priority: document.getElementById('inputPriority').value,
+                releaseDay: document.getElementById('inputReleaseDay').value,
                 source: document.getElementById('inputSource').value.trim(),
                 notes: document.getElementById('inputNotes').value.trim(),
-                coverData: tempCoverData || null,
-                favorite: editingIndex >= 0 ? entryList[editingIndex].favorite : false,
-                dateAdded: editingIndex >= 0 ? entryList[editingIndex].dateAdded : new Date().toISOString(),
-                lastReadDate: editingIndex >= 0 ? entryList[editingIndex].lastReadDate : null,
-            };
-            if (editingIndex >= 0) { entryList[editingIndex] = entry; } else { entryList.push(entry); }
-            entryList.sort((a, b) => a.title.localeCompare(b.title));
-            spawnSparkles(window.innerWidth / 2, window.innerHeight / 2, 10);
-            saveData();
+                coverData: tempCover || null,
+                favorite: editIdx >= 0 ? entries[editIdx]?.favorite : false,
+                dateAdded: editIdx >= 0 ? entries[editIdx]?.dateAdded : new Date().toISOString(),
+                lastReadDate: editIdx >= 0 ? entries[editIdx]?.lastReadDate : null }; if (editIdx >= 0) entries[editIdx] =
+                entry;
+            else entries.push(entry);
+            entries.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+            playSound('save');
+            spawnSparkles(innerWidth / 2, innerHeight / 2, 6);
+            save();
             closeModal();
-            renderList();
-        }
+            renderList(); const cur = entries.filter(e => e.status === 'Finished' && getPct(e) === 100).length; if (cur >
+                prevDone) spawnConfetti(16);
+            prevDone = cur }
 
-        // ══════════════════════════════════════
-        // 📤📥 EXPORT / IMPORT
-        // ══════════════════════════════════════
-        function exportData() {
-            const data = JSON.stringify(entryList, null, 2);
-            const blob = new Blob([data], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
+        // ═══════════════ EXPORT/IMPORT ═══════════════
+        function exportData() { playSound('export'); const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' }),
+                url = URL.createObjectURL(blob),
+                a = document.createElement('a');
             a.href = url;
-            a.download = 'binge-list-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+            a.download = 'binge-bean-' + new Date().toISOString().slice(0, 10) + '.json';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            spawnSparkles(window.innerWidth / 2, window.innerHeight / 2, 12);
-            alert('✅ Backup saved to Downloads! 🎉');
-        }
+            spawnSparkles(innerWidth / 2, innerHeight / 2, 7);
+            alert('✅ Backup saved!') }
 
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            if (!confirm('⚠️ Import will REPLACE your current list. Continue?')) { event.target.value = ''; return; }
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (Array.isArray(data)) {
-                        playSound('import');
-                        entryList = data;
-                        entryList.sort((a, b) => a.title.localeCompare(b.title));
-                        saveData();
-                        renderList();
-                        spawnSparkles(window.innerWidth / 2, window.innerHeight / 2, 15);
-                        alert('✅ Import successful! 🎉');
-                    } else { alert('❌ Invalid backup file!'); }
-                } catch (err) { alert('❌ Error reading file!'); }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        }
+        function importData(ev) { const file = ev.target.files[0]; if (!file) return; if (!confirm(
+                '⚠️ Replace current list? Auto-backup saved.')) { ev.target.value = ''; return } try { localStorage.setItem(
+                    STORE + '_bak', JSON.stringify(entries)) } catch (e) {} const r = new FileReader();
+            r.onload = function(e) { try { const d = JSON.parse(e.target.result); if (Array.isArray(d)) { playSound(
+                        'import');
+                    entries = d;
+                    entries.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+                    save();
+                    renderList();
+                    spawnSparkles(innerWidth / 2, innerHeight / 2, 8);
+                    alert('✅ Imported!') } else alert('❌ Invalid file') } catch (er) { alert('❌ Error') } };
+            r.readAsText(file);
+            ev.target.value = '' }
 
-        // ══════════════════════════════════════
-        // 🚀 INIT
-        // ══════════════════════════════════════
-        function init() {
-            loadData();
+        // ═══════════════ DARK MODE ═══════════════
+        function toggleDarkMode() { document.body.classList.toggle('dark');
+            document.getElementById('darkToggle').textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+            localStorage.setItem('b_d', document.body.classList.contains('dark')) }
+
+        // ═══════════════ INIT ═══════════════
+        function init() { load(); if (localStorage.getItem('b_d') === 'true') { document.body.classList.add('dark');
+                document.getElementById('darkToggle').textContent = '☀️' } if (localStorage.getItem('b_s') === 'false') { soundEnabled =
+                    false;
+                document.getElementById('soundToggle').textContent = '🔇' } if (localStorage.getItem('b_m') === 'true') { musicEnabled =
+                    true;
+                document.getElementById('musicToggle').textContent = '🎶';
+                setTimeout(startMusic, 500) } const mv = localStorage.getItem('b_mv'); if (mv) { musicVolume = parseInt(mv) /
+                100;
+                document.getElementById('musicVolume').value = mv }
+            prevDone = entries.filter(e => e.status === 'Finished' && getPct(e) === 100).length;
             updateStreak();
             renderList();
-            autoSaveInterval = setInterval(() => saveData(true), 5000);
-            window.addEventListener('beforeunload', () => saveData(true));
-            document.addEventListener('visibilitychange', () => { if (document.hidden) saveData(true); });
-            document.getElementById('modalOverlay').addEventListener('click', function(e) {
-                if (e.target === this) { playSound('close');
-                    closeModal(); }
-            });
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && document.getElementById('modalOverlay').style.display === 'flex') {
-                    playSound('close');
-                    closeModal();
-                }
-            });
-            const savedSound = localStorage.getItem('bingeSoundEnabled');
-            if (savedSound === 'false') {
-                soundEnabled = false;
-                document.getElementById('soundToggle').textContent = '🔇';
-                document.getElementById('soundToggle').classList.add('muted');
-            }
-            console.log('🐰🌸🎵 Binge List ready! Full cute mode activated! ✨');
-        }
+            updateStats();
+            setInterval(() => save(true), 5000);
+            window.addEventListener('pagehide', () => save(true));
+            document.addEventListener('visibilitychange', () => { if (document.hidden) save(true) });
+            document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this)
+                    closeModal() });
+            document.getElementById('readModalOverlay').addEventListener('click', function(e) { if (e.target === this)
+                    closeReadModal() });
+            document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { if (document.getElementById(
+                        'modalOverlay').style.display === 'flex') closeModal(); if (document.getElementById(
+                        'readModalOverlay').style.display === 'flex') closeReadModal() } if ((e.ctrlKey || e.metaKey) &&
+                    e.key === 'k') { e.preventDefault();
+                    document.getElementById('searchInput').focus() } });
+            console.log('🐰 BingeBean ready! ✨') }
         init();
     </script>
 </body>
