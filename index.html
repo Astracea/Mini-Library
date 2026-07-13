@@ -56,7 +56,7 @@
         .confetti-piece { position:fixed; pointer-events:none; z-index:998; animation:confettiFall 2.2s ease-out forwards; }
         @keyframes confettiFall { 0%{opacity:1;transform:translateY(-80px) rotate(0deg) scale(1)} 100%{opacity:0;transform:translateY(105vh) rotate(600deg) scale(0.2)} }
 
-        .app-container { max-width:500px; margin:0 auto; padding:10px 12px 100px; position:relative; z-index:1; }
+        .app-container { max-width:500px; margin:0 auto; padding:10px 12px 140px; position:relative; z-index:1; }
         .top-bar { display:flex; align-items:center; justify-content:flex-end; gap:6px; padding:4px 0 0; }
         .icon-btn { width:34px; height:34px; border-radius:50%; border:2px solid var(--pink-light); background:var(--card); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow); transition:all 0.15s; }
         .icon-btn:active { transform:scale(0.85); background:var(--pink-light); }
@@ -147,12 +147,12 @@
         .read-link-row{display:flex;justify-content:space-between;align-items:center;padding:7px 8px;border-bottom:1px solid var(--pink-light);font-size:10px}
         .read-link-row a{color:var(--pink-dark);text-decoration:none;font-weight:600}
 
-        .music-float{position:fixed;bottom:16px;right:12px;z-index:500;display:flex;gap:4px;align-items:center}
+        .music-float{position:fixed;bottom:70px;right:12px;z-index:500;...}display:flex;gap:4px;align-items:center}
         .music-btn-float{width:34px;height:34px;border-radius:50%;border:2px solid var(--pink-light);background:var(--card);font-size:14px;cursor:pointer;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center}
         .music-btn-float:active{transform:scale(0.85)}
         .volume-slider{-webkit-appearance:none;width:44px;height:3px;border-radius:2px;background:var(--pink-light);accent-color:var(--pink-dark)}
 
-        .save-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#ffb8c6,#d4b8ff);color:white;padding:6px 14px;border-radius:16px;font-size:9px;font-weight:700;z-index:400;opacity:0;transition:opacity 0.3s;pointer-events:none}
+        .save-toast{position:fixed;bottom:80px;...}left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#ffb8c6,#d4b8ff);color:white;padding:6px 14px;border-radius:16px;font-size:9px;font-weight:700;z-index:400;opacity:0;transition:opacity 0.3s;pointer-events:none}
         .save-toast.show{opacity:1;animation:popUp 0.3s cubic-bezier(0.34,1.56,0.64,1)}
         @keyframes popUp{0%{transform:translateX(-50%) scale(0.5)}100%{transform:translateX(-50%) scale(1)}}
 
