@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🌸 My Binge List 🌸</title>
+    <style>
+        :root {
+            --pink: #ffb8c6;
+            --pink-light: #ffe0e6;
+            --pink-dark: #f08a9e;
+            --purple: #d4b8ff;
+            --purple-light: #ede0ff;
+            --blue: #b8d4ff;
+            --blue-light: #e0eeff;
+            --mint: #b8ffd4;
+            --mint-light: #e0ffee;
+            --yellow: #fff3b8;
+            --peach: #ffd4b8;
+            --bg: #fff5f7;
+            --card: #ffffff;
+            --text: #5a4a5a;
+            --text-light: #8a7a8a;
+            --shadow: 0 4px 15px rgba(255, 184, 198, 0.25);
+            --shadow-hover: 0 8px 25px rgba(255, 184, 198, 0.4);
+            --radius: 20px;
+            --radius-sm: 12px;
+            --radius-xs: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(255, 184, 198, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(212, 184, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(184, 212, 255, 0.1) 0%, transparent 50%);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--pink-light);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--pink);
+            border-radius: 10px;
+        }
+
+        .app-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 15px;
+            padding-bottom: 100px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px 15px;
+            position: relative;
+        }
+        .header .mascot {
+            font-size: 60px;
+            animation: bounce 2s ease-in-out infinite;
+            display: inline-block;
+        }
+        @keyframes bounce {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+        .header h1 {
+            font-size: 26px;
+            background: linear-gradient(135deg, var(--pink-dark), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            margin-top: 5px;
+            letter-spacing: -0.5px;
+        }
+        .header .subtitle {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .stat-chip {
+            background: white;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .stat-chip:active {
+            transform: scale(0.95);
+        }
+        .stat-chip.pink {
+            border-color: var(--pink);
+        }
+        .stat-chip.purple {
+            border-color: var(--purple);
+        }
+        .stat-chip.mint {
+            border-color: var(--mint);
+        }
+        .stat-chip.blue {
+            border-color: var(--blue);
+        }
+        .stat-number {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--pink-dark);
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .search-box {
+            flex: 2;
+            min-width: 180px;
+            position: relative;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            border: 2px solid var(--pink-light);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            background: white;
+            color: var(--text);
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--pink);
+            box-shadow: var(--shadow-hover);
+        }
+        .search-box .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
+        .filter-select {
+            flex: 1;
+            min-width: 130px;
+            padding: 12px;
+            border: 2px solid var(--pink-light);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            background: white;
+            color: var(--text);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+        }
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--pink);
+        }
+
+        .add-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+        .add-btn:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 8px rgba(255, 184, 198, 0.3);
+        }
+
+        .manhwa-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.4s ease;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .manhwa-card:active {
+            transform: scale(0.98);
+        }
+        .manhwa-card.favorite {
+            border-color: var(--yellow);
+            background: #fffef9;
+        }
+        .manhwa-card .card-inner {
+            display: flex;
+            gap: 14px;
+        }
+        .manhwa-card .cover-img {
+            width: 80px;
+            height: 110px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            background: var(--pink-light);
+            flex-shrink: 0;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .manhwa-card .cover-img:active {
+            transform: scale(1.05);
+        }
+        .manhwa-card .cover-img .change-cover-hint {
+            position: absolute;
+            bottom: 5px;
+            font-size: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .manhwa-card .cover-img:active .change-cover-hint {
+            opacity: 1;
+        }
+        .card-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .card-title {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 4px;
+            color: #4a3a4a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .card-title .fav-star {
+            color: #ffb347;
+            font-size: 16px;
+            cursor: pointer;
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+        @keyframes sparkle {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.3);
+            }
+        }
+        .card-meta {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .progress-wrap {
+            margin: 8px 0;
+        }
+        .progress-bar {
+            background: #f0e8f0;
+            height: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            background: linear-gradient(90deg, var(--pink), var(--purple));
+            position: relative;
+        }
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 20px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 10px;
+        }
+        .progress-text {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-top: 3px;
+            text-align: right;
+        }
+
+        .tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin: 6px 0;
+        }
+        .tag {
+            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .tag.ongoing {
+            background: #e0ffee;
+            color: #2d8a4e;
+        }
+        .tag.finished {
+            background: #e0eeff;
+            color: #2d5a8a;
+        }
+        .tag.hiatus {
+            background: #fff3e0;
+            color: #8a6d2d;
+        }
+        .tag.dropped {
+            background: #ffe0e0;
+            color: #8a2d2d;
+        }
+        .tag.genre {
+            background: var(--purple-light);
+            color: #5a3d8a;
+        }
+        .tag.priority-high {
+            background: #ffe0e0;
+            color: #d44;
+        }
+        .tag.priority-medium {
+            background: #fff8e0;
+            color: #b88a20;
+        }
+        .tag.priority-low {
+            background: #e0f0e0;
+            color: #4a8a4a;
+        }
+        /* Type tags */
+        .tag.manhwa {
+            background: #ffe0ee;
+            color: #c44a7a;
+        }
+        .tag.manhua {
+            background: #ffe8d0;
+            color: #c4733a;
+        }
+        .tag.manga {
+            background: #ffe0e0;
+            color: #c44a4a;
+        }
+
+        .stars {
+            color: #ffb347;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+        .stars .empty {
+            color: #ddd;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            border-radius: var(--radius-xs);
+            border: none;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+        }
+        .btn-sm:active {
+            transform: scale(0.93);
+        }
+        .btn-edit {
+            background: var(--purple-light);
+            color: #5a3d8a;
+        }
+        .btn-chapter {
+            background: var(--blue-light);
+            color: #2d5a8a;
+        }
+        .btn-delete {
+            background: #ffe0e0;
+            color: #c44;
+        }
+        .btn-notes {
+            background: var(--mint-light);
+            color: #2d6a4e;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .modal {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .modal h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 20px;
+            color: var(--pink-dark);
+        }
+        .modal .form-group {
+            margin-bottom: 12px;
+        }
+        .modal label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text-light);
+            letter-spacing: 0.5px;
+        }
+        .modal input,
+        .modal select,
+        .modal textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid var(--pink-light);
+            border-radius: var(--radius-xs);
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text);
+            transition: all 0.3s;
+            background: #fefefe;
+        }
+        .modal input:focus,
+        .modal select:focus,
+        .modal textarea:focus {
+            outline: none;
+            border-color: var(--pink);
+            box-shadow: 0 0 0 3px rgba(255, 184, 198, 0.15);
+        }
+        .modal textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        .modal .cover-preview {
+            width: 100%;
+            height: 140px;
+            border-radius: var(--radius-sm);
+            background: var(--pink-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 50px;
+            object-fit: cover;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+        }
+        .modal .cover-preview:active {
+            transform: scale(0.96);
+        }
+        .modal .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .modal .btn-row button {
+            flex: 1;
+            padding: 12px;
+            border-radius: var(--radius-xs);
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.5px;
+        }
+        .btn-save {
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            color: white;
+        }
+        .btn-cancel {
+            background: #f0e8f0;
+            color: var(--text);
+        }
+        .btn-save:active,
+        .btn-cancel:active {
+            transform: scale(0.95);
+        }
+
+        .utility-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .utility-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 2px solid var(--pink-light);
+            background: white;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text);
+            transition: all 0.2s;
+            box-shadow: var(--shadow);
+        }
+        .utility-btn:active {
+            transform: scale(0.95);
+            background: var(--pink-light);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .empty-state .empty-icon {
+            font-size: 80px;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        .empty-state p {
+            color: var(--text-light);
+            margin-top: 10px;
+            font-size: 15px;
+        }
+
+        #coverInput {
+            display: none;
+        }
+
+        @media (max-width: 400px) {
+            .manhwa-card .card-inner {
+                gap: 10px;
+            }
+            .manhwa-card .cover-img {
+                width: 60px;
+                height: 85px;
+                font-size: 30px;
+            }
+            .card-title {
+                font-size: 14px;
+            }
+            .header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="mascot">🐰</div>
+            <h1>My Binge List</h1>
+            <p class="subtitle">♡ Manhwa • Manhua • Manga tracker ♡</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-chip pink"><span>📚</span> Total: <span class="stat-number" id="totalCount">0</span></div>
+            <div class="stat-chip mint"><span>📖</span> Ongoing: <span class="stat-number" id="ongoingCount">0</span></div>
+            <div class="stat-chip blue"><span>✅</span> Finished: <span class="stat-number" id="finishedCount">0</span></div>
+            <div class="stat-chip purple"><span>⭐</span> Favorites: <span class="stat-number" id="favCount">0</span></div>
+        </div>
+
+        <!-- Utility -->
+        <div class="utility-bar">
+            <button class="utility-btn" onclick="exportData()">📤 Export Backup</button>
+            <button class="utility-btn" onclick="document.getElementById('importInput').click()">📥 Import Backup</button>
+            <input type="file" id="importInput" accept=".json" style="display:none" onchange="importData(event)">
+        </div>
+
+        <!-- Search & Filter -->
+        <div class="search-filter">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search title or genre..." oninput="renderList()">
+            </div>
+            <select class="filter-select" id="typeFilter" onchange="renderList()">
+                <option value="all">🌏 All Types</option>
+                <option value="Manhwa">🇰🇷 Manhwa</option>
+                <option value="Manhua">🇨🇳 Manhua</option>
+                <option value="Manga">🇯🇵 Manga</option>
+            </select>
+            <select class="filter-select" id="statusFilter" onchange="renderList()">
+                <option value="all">📋 All Status</option>
+                <option value="Ongoing">📖 Ongoing</option>
+                <option value="Finished">✅ Finished</option>
+                <option value="Hiatus">⏸️ Hiatus</option>
+                <option value="Dropped">❌
