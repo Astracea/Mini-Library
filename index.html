@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#ffb8c6">
-    <title>🐰 BingeBean</title>
+    <title>🐰 AliceBinge</title>
     <style>
         :root {
             --pink: #ffb8c6;
@@ -81,13 +81,11 @@
         .util-btn:active { transform:scale(0.92); background:var(--pink-light); }
         .util-btn.accent { background:#fff8e0; border-color:#ffe8a0; color:#b87820; }
 
-        /* Compact search row - icon style with text */
         .search-row { display:flex; gap:5px; margin-bottom:8px; flex-wrap:wrap; align-items:center; }
         .search-box { flex:2; min-width:130px; position:relative; }
         .search-box input { width:100%; padding:10px 10px 10px 30px; border:2px solid var(--pink-light); border-radius:var(--radius-sm); font-size:12px; background:var(--card); color:var(--text); box-shadow:var(--shadow); transition:all 0.2s; }
         .search-box input:focus { outline:none; border-color:var(--pink); box-shadow:0 0 0 3px rgba(255,184,198,0.08); }
         .search-icon { position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:13px; pointer-events:none; }
-        /* Compact selects with text inside */
         .compact-select { flex:1; min-width:85px; padding:9px 5px; border:2px solid var(--pink-light); border-radius:var(--radius-sm); font-size:10px; font-weight:600; background:var(--card); color:var(--text); box-shadow:var(--shadow); cursor:pointer; -webkit-appearance:none; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath fill='%23f08a9e' d='M4 6L0 2h8z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 5px center; padding-right:16px; text-align:center; }
         .compact-select:focus { outline:none; border-color:var(--pink); }
 
@@ -200,7 +198,6 @@
             <input type="file" id="importInput" accept=".json" class="hidden-input" onchange="importData(event)">
         </div>
 
-        <!-- Compact search row with text inside -->
         <div class="search-row">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
@@ -319,290 +316,49 @@
 
     <script>
         // ═══════════════ AUDIO ═══════════════
-        let audioCtx = null,
-            soundEnabled = true,
-            musicEnabled = false,
-            musicVolume = 0.25,
-            musicInterval = null;
+        let audioCtx = null, soundEnabled = true, musicEnabled = false, musicVolume = 0.25, musicInterval = null;
 
-        function getCtx() { if (!audioCtx) try { audioCtx = new(window.AudioContext || window.webkitAudioContext)(); } catch (
-                e) { return null } if (audioCtx.state === 'suspended') audioCtx.resume(); return audioCtx; }
+        function getCtx() { if (!audioCtx) try { audioCtx = new(window.AudioContext || window.webkitAudioContext)(); } catch(e) { return null } if (audioCtx.state === 'suspended') audioCtx.resume(); return audioCtx; }
 
         function playSound(t) {
             if (!soundEnabled) return;
-            const ctx = getCtx();
-            if (!ctx) return;
+            const ctx = getCtx(); if (!ctx) return;
             const n = ctx.currentTime;
-            const tn = (f, d, v, w = 'sine', dl = 0) => { const o = ctx.createOscillator(),
-                    g = ctx.createGain();
-                o.type = w;
-                o.frequency.setValueAtTime(f, n + dl);
-                o.frequency.exponentialRampToValueAtTime(f * 1.3, n + dl + d * 0.3);
-                o.frequency.exponentialRampToValueAtTime(f * 0.8, n + dl + d);
-                g.gain.setValueAtTime(v, n + dl);
-                g.gain.exponentialRampToValueAtTime(0.001, n + dl + d);
-                o.connect(g);
-                g.connect(ctx.destination);
-                o.start(n + dl);
-                o.stop(n + dl + d) };
-            switch (t) {
-                case 'click':
-                    tn(1200, 0.04, 0.07);
-                    tn(1600, 0.03, 0.05, 'sine', 0.02);
-                    break;
-                case 'open':
-                    tn(800, 0.05, 0.1);
-                    tn(1000, 0.04, 0.08, 'sine', 0.03);
-                    tn(1400, 0.03, 0.06, 'sine', 0.06);
-                    break;
-                case 'close':
-                    tn(700, 0.04, 0.08);
-                    tn(500, 0.05, 0.06, 'sine', 0.02);
-                    break;
-                case 'save':
-                    tn(660, 0.07, 0.1);
-                    tn(880, 0.07, 0.1, 'sine', 0.06);
-                    tn(1100, 0.08, 0.12, 'sine', 0.12);
-                    break;
-                case 'chapter':
-                    tn(900, 0.03, 0.06, 'triangle');
-                    tn(1200, 0.02, 0.05, 'sine', 0.02);
-                    break;
-                case 'favorite':
-                    tn(1400, 0.04, 0.08);
-                    tn(1800, 0.03, 0.06, 'sine', 0.03);
-                    tn(2200, 0.02, 0.05, 'sine', 0.06);
-                    break;
-                case 'delete':
-                    tn(250, 0.08, 0.1, 'triangle');
-                    tn(180, 0.1, 0.08, 'sine', 0.02);
-                    break;
-                case 'updateAll':
-                    for (let i = 0; i < 4; i++) tn(700 + i * 120, 0.02, 0.04, 'triangle', i * 0.03);
-                    tn(1200, 0.05, 0.06, 'sine', 0.12);
-                    break;
-                case 'export':
-                    [523, 659, 784, 1047].forEach((f, i) => tn(f, 0.08, 0.12, 'sine', i * 0.08));
-                    break;
-                case 'import':
-                    [300, 400, 500, 700].forEach((f, i) => tn(f, 0.03, 0.04, 'square', i * 0.04));
-                    break;
-                case 'cover':
-                    tn(1600, 0.02, 0.04, 'triangle');
-                    break;
-                case 'streak':
-                    [523, 659, 784, 1047, 1318].forEach((f, i) => tn(f, 0.06, 0.08, 'sine', i * 0.06));
-                    break;
-                default:
-                    tn(800, 0.02, 0.05);
-            }
+            const tn = (f, d, v, w='sine', dl=0) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = w; o.frequency.setValueAtTime(f, n+dl); o.frequency.exponentialRampToValueAtTime(f*1.3, n+dl+d*0.3); o.frequency.exponentialRampToValueAtTime(f*0.8, n+dl+d); g.gain.setValueAtTime(v, n+dl); g.gain.exponentialRampToValueAtTime(0.001, n+dl+d); o.connect(g); g.connect(ctx.destination); o.start(n+dl); o.stop(n+dl+d) };
+            switch(t){case'click':tn(1200,0.04,0.07);tn(1600,0.03,0.05,'sine',0.02);break;case'open':tn(800,0.05,0.1);tn(1000,0.04,0.08,'sine',0.03);tn(1400,0.03,0.06,'sine',0.06);break;case'close':tn(700,0.04,0.08);tn(500,0.05,0.06,'sine',0.02);break;case'save':tn(660,0.07,0.1);tn(880,0.07,0.1,'sine',0.06);tn(1100,0.08,0.12,'sine',0.12);break;case'chapter':tn(900,0.03,0.06,'triangle');tn(1200,0.02,0.05,'sine',0.02);break;case'favorite':tn(1400,0.04,0.08);tn(1800,0.03,0.06,'sine',0.03);tn(2200,0.02,0.05,'sine',0.06);break;case'delete':tn(250,0.08,0.1,'triangle');tn(180,0.1,0.08,'sine',0.02);break;case'updateAll':for(let i=0;i<4;i++)tn(700+i*120,0.02,0.04,'triangle',i*0.03);tn(1200,0.05,0.06,'sine',0.12);break;case'export':[523,659,784,1047].forEach((f,i)=>tn(f,0.08,0.12,'sine',i*0.08));break;case'import':[300,400,500,700].forEach((f,i)=>tn(f,0.03,0.04,'square',i*0.04));break;case'cover':tn(1600,0.02,0.04,'triangle');break;case'streak':[523,659,784,1047,1318].forEach((f,i)=>tn(f,0.06,0.08,'sine',i*0.06));break;default:tn(800,0.02,0.05);}
         }
 
-        function toggleSound() { soundEnabled = !soundEnabled;
-            document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇'; if (soundEnabled) { getCtx();
-                playSound('click'); }
-            localStorage.setItem('b_s', soundEnabled); }
+        function toggleSound() { soundEnabled = !soundEnabled; document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇'; if(soundEnabled){getCtx();playSound('click');} localStorage.setItem('b_s', soundEnabled); }
 
-        function startMusic() {
-    const ctx = getCtx();
-    if (!ctx || musicInterval) return;
-    // Pentatonic scale for dreamy snow globe feel
-    const scale = [262, 294, 330, 392, 440, 523, 588, 660, 784, 880, 1047];
-    let idx = 0;
+        function startMusic() { const ctx = getCtx(); if(!ctx||musicInterval)return; const sc = [262,294,330,392,440,523,588,660,784,880,1047]; let i = 0; musicInterval = setInterval(()=>{ if(!musicEnabled)return; const f=sc[i%sc.length], d=0.8+Math.random()*0.6; const o=ctx.createOscillator(), g=ctx.createGain(); o.type='sine'; o.frequency.setValueAtTime(f,ctx.currentTime); g.gain.setValueAtTime(musicVolume*0.15,ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+d); o.connect(g); g.connect(ctx.destination); o.start(ctx.currentTime); o.stop(ctx.currentTime+d); const o2=ctx.createOscillator(), g2=ctx.createGain(); o2.type='sine'; o2.frequency.setValueAtTime(f*2,ctx.currentTime); g2.gain.setValueAtTime(musicVolume*0.04,ctx.currentTime); g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+d*0.8); o2.connect(g2); g2.connect(ctx.destination); o2.start(ctx.currentTime); o2.stop(ctx.currentTime+d*0.8); i++ }, 900); }
 
-    function playNote() {
-        if (!musicEnabled) return;
-        const freq = scale[idx % scale.length];
-        const dur = 0.8 + Math.random() * 0.6; // Longer notes: 0.8-1.4 seconds
-
-        // Main bell-like tone (soft)
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = 'sine';
-        o.frequency.setValueAtTime(freq, ctx.currentTime);
-        g.gain.setValueAtTime(musicVolume * 0.15, ctx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-        o.connect(g);
-        g.connect(ctx.destination);
-        o.start(ctx.currentTime);
-        o.stop(ctx.currentTime + dur);
-
-        // Soft harmonic overtone
-        const o2 = ctx.createOscillator();
-        const g2 = ctx.createGain();
-        o2.type = 'sine';
-        o2.frequency.setValueAtTime(freq * 2, ctx.currentTime);
-        g2.gain.setValueAtTime(musicVolume * 0.04, ctx.currentTime);
-        g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur * 0.8);
-        o2.connect(g2);
-        g2.connect(ctx.destination);
-        o2.start(ctx.currentTime);
-        o2.stop(ctx.currentTime + dur * 0.8);
-
-        idx++;
-    }
-
-    // Much slower: 900ms between notes (was 400ms)
-    musicInterval = setInterval(playNote, 900);
-}
-
-        function stopMusic() { if (musicInterval) { clearInterval(musicInterval);
-                musicInterval = null; } }
-
-        function toggleMusic() { musicEnabled = !musicEnabled;
-            document.getElementById('musicToggle').textContent = musicEnabled ? '🎶' : '🎵';
-            musicEnabled ? (getCtx(), startMusic()) : stopMusic();
-            localStorage.setItem('b_m', musicEnabled); }
-
-        function setMusicVolume(v) { musicVolume = v / 100;
-            localStorage.setItem('b_mv', v); }
+        function stopMusic() { if(musicInterval){clearInterval(musicInterval);musicInterval=null;} }
+        function toggleMusic() { musicEnabled = !musicEnabled; document.getElementById('musicToggle').textContent = musicEnabled ? '🎶' : '🎵'; musicEnabled ? (getCtx(), startMusic()) : stopMusic(); localStorage.setItem('b_m', musicEnabled); }
+        function setMusicVolume(v) { musicVolume = v/100; localStorage.setItem('b_mv', v); }
 
         // ═══════════════ PETALS ═══════════════
-        (function() { const c = document.getElementById('petalsCanvas'),
-                ctx = c.getContext('2d'); let p = []; const sh = ['🌸', '💮', '✿', '🌷', '🩷', '･'];
+        (function(){const c=document.getElementById('petalsCanvas'),ctx=c.getContext('2d');let p=[];const sh=['🌸','💮','✿','🌷','🩷','･'];function rs(){c.width=innerWidth;c.height=innerHeight;}rs();addEventListener('resize',rs);for(let i=0;i<16;i++)p.push({x:Math.random()*c.width,y:Math.random()*c.height,s:6+Math.random()*10,sp:0.2+Math.random()*0.7,wb:Math.random()*1.4-0.7,ws:0.007+Math.random()*0.013,sym:sh[Math.floor(Math.random()*sh.length)],op:0.18+Math.random()*0.32,rot:Math.random()*360,rs:(Math.random()-0.5)*1.1});function anim(){ctx.clearRect(0,0,c.width,c.height);p.forEach(pt=>{pt.y+=pt.sp;pt.x+=Math.sin(pt.y*pt.ws)*pt.wb;pt.rot+=pt.rs;if(pt.y>c.height+30){pt.y=-22;pt.x=Math.random()*c.width;}ctx.save();ctx.globalAlpha=pt.op;ctx.translate(pt.x,pt.y);ctx.rotate(pt.rot*Math.PI/180);ctx.font=pt.s+'px serif';ctx.fillText(pt.sym,-pt.s/2,pt.s/2);ctx.restore()});requestAnimationFrame(anim)}anim()})();
 
-            function rs() { c.width = innerWidth;
-                c.height = innerHeight; }
-            rs();
-            addEventListener('resize', rs); for (let i = 0; i < 16; i++) p.push({ x: Math.random() * c.width, y: Math
-                    .random() * c.height, s: 6 + Math.random() * 10, sp: 0.2 + Math.random() * 0.7, wb: Math.random() *
-                    1.4 - 0.7, ws: 0.007 + Math.random() * 0.013, sym: sh[Math.floor(Math.random() * sh.length)],
-                    op: 0.18 + Math.random() * 0.32, rot: Math.random() * 360, rs: (Math.random() - 0.5) * 1.1 });
-
-            function anim() { ctx.clearRect(0, 0, c.width, c.height);
-                p.forEach(pt => { pt.y += pt.sp;
-                    pt.x += Math.sin(pt.y * pt.ws) * pt.wb;
-                    pt.rot += pt.rs; if (pt.y > c.height + 30) { pt.y = -22;
-                        pt.x = Math.random() * c.width; } ctx.save();
-                    ctx.globalAlpha = pt.op;
-                    ctx.translate(pt.x, pt.y);
-                    ctx.rotate(pt.rot * Math.PI / 180);
-                    ctx.font = pt.s + 'px serif';
-                    ctx.fillText(pt.sym, -pt.s / 2, pt.s / 2);
-                    ctx.restore() });
-                requestAnimationFrame(anim) }
-            anim() })();
-
-        function spawnSparkles(x, y, n = 6) { const ct = document.getElementById('sparkleContainer'),
-                em = ['✨', '⭐', '💫', '🌟', '✦', '✧', '💖', '🎀', '🫧']; for (let i = 0; i < n; i++) { const s = document
-                    .createElement('span');
-                s.className = 'sparkle-particle';
-                s.textContent = em[Math.floor(Math.random() * em.length)];
-                s.style.left = x + 'px';
-                s.style.top = y + 'px';
-                s.style.setProperty('--dx', (Math.random() - 0.5) * 70 + 'px');
-                s.style.setProperty('--dy', (Math.random() - 0.5) * 70 - 20 + 'px');
-                s.style.fontSize = (7 + Math.random() * 12) + 'px';
-                s.style.animationDuration = (0.35 + Math.random() * 0.5) + 's';
-                ct.appendChild(s);
-                setTimeout(() => s.remove(), 1000) } }
-
-        function spawnHearts(x, y, n = 5) { const hh = ['💖', '💕', '💗', '💝', '❤️', '🩷']; for (let i = 0; i < n; i++) { const h =
-                    document.createElement('span');
-                h.className = 'heart-burst';
-                h.textContent = hh[Math.floor(Math.random() * hh.length)];
-                h.style.left = (x + (Math.random() - 0.5) * 45) + 'px';
-                h.style.top = (y + (Math.random() - 0.5) * 18) + 'px';
-                h.style.fontSize = (10 + Math.random() * 12) + 'px';
-                document.body.appendChild(h);
-                setTimeout(() => h.remove(), 700) } }
-
-        function spawnConfetti(n = 12) { const em = ['🎉', '🎊', '🌸', '💮', '⭐', '💖', '🎀', '📚', '🌈', '🫧']; for (let i = 0; i <
-                n; i++) { const c = document.createElement('span');
-                c.className = 'confetti-piece';
-                c.textContent = em[Math.floor(Math.random() * em.length)];
-                c.style.left = Math.random() * innerWidth + 'px';
-                c.style.top = -(12 + Math.random() * 40) + 'px';
-                c.style.fontSize = (9 + Math.random() * 12) + 'px';
-                document.body.appendChild(c);
-                setTimeout(() => c.remove(), 2200) } }
+        function spawnSparkles(x,y,n=6){const ct=document.getElementById('sparkleContainer'),em=['✨','⭐','💫','🌟','✦','✧','💖','🎀','🫧'];for(let i=0;i<n;i++){const s=document.createElement('span');s.className='sparkle-particle';s.textContent=em[Math.floor(Math.random()*em.length)];s.style.left=x+'px';s.style.top=y+'px';s.style.setProperty('--dx',(Math.random()-0.5)*70+'px');s.style.setProperty('--dy',(Math.random()-0.5)*70-20+'px');s.style.fontSize=(7+Math.random()*12)+'px';s.style.animationDuration=(0.35+Math.random()*0.5)+'s';ct.appendChild(s);setTimeout(()=>s.remove(),1000)}}
+        function spawnHearts(x,y,n=5){const hh=['💖','💕','💗','💝','❤️','🩷'];for(let i=0;i<n;i++){const h=document.createElement('span');h.className='heart-burst';h.textContent=hh[Math.floor(Math.random()*hh.length)];h.style.left=(x+(Math.random()-0.5)*45)+'px';h.style.top=(y+(Math.random()-0.5)*18)+'px';h.style.fontSize=(10+Math.random()*12)+'px';document.body.appendChild(h);setTimeout(()=>h.remove(),700)}}
+        function spawnConfetti(n=12){const em=['🎉','🎊','🌸','💮','⭐','💖','🎀','📚','🌈','🫧'];for(let i=0;i<n;i++){const c=document.createElement('span');c.className='confetti-piece';c.textContent=em[Math.floor(Math.random()*em.length)];c.style.left=Math.random()*innerWidth+'px';c.style.top=-(12+Math.random()*40)+'px';c.style.fontSize=(9+Math.random()*12)+'px';document.body.appendChild(c);setTimeout(()=>c.remove(),2200)}}
 
         // ═══════════════ DATA ═══════════════
-        const STORE = 'b_v9',
-            STREAK_K = 'b_sk';
-        let entries = [],
-            editIdx = -1,
-            tempCover = null,
-            prevDone = 0,
-            lastSave = 0,
-            rto = null,
-            todayStr = new Date().toDateString();
-
-        function load() { const r = localStorage.getItem(STORE); if (r) try { entries = JSON.parse(r); } catch (e) { entries =
-                []; } if (!entries.length) { for (const k of ['binge_v8', 'b_v9']) { const x = localStorage.getItem(k); if (
-                        x) try { entries = JSON.parse(x); if (entries.length) { localStorage.setItem(STORE, x); break; } } catch (
-                    e) {} } }
-            entries.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-            prevDone = entries.filter(e => e.status === 'Finished' && getPct(e) === 100).length; }
-
-        function save(s = false) { const n = Date.now(); if (n - lastSave < 300 && s) return;
-            lastSave = n; try { localStorage.setItem(STORE, JSON.stringify(entries));
-                updateStats();
-                updateStreak(); if (!s) { const t = document.getElementById('saveToast');
-                    t.classList.add('show');
-                    clearTimeout(t._t);
-                    t._t = setTimeout(() => t.classList.remove('show'), 1200) } } catch (e) {} }
-
-        function updateStreak() { let sd = { lastDate: todayStr, count: 0 }; try { const r = localStorage.getItem(
-                STREAK_K); if (r) sd = JSON.parse(r); } catch (e) {} const ld = new Date(sd.lastDate),
-                yd = new Date();
-            yd.setDate(yd.getDate() - 1); const oc = sd.count; if (todayStr === sd.lastDate) {} else if (ld.toDateString() ===
-                yd.toDateString()) { sd.count++;
-                sd.lastDate = todayStr } else { sd.count = 1;
-                sd.lastDate = todayStr }
-            localStorage.setItem(STREAK_K, JSON.stringify(sd)); const b = document.getElementById('streakBadge'); if (sd.count >
-                0) { b.style.display = 'inline-block';
-                b.textContent = `🔥 ${sd.count} day streak`; if (sd.count > oc && oc > 0) { playSound('streak');
-                    spawnSparkles(innerWidth / 2, 120, 8) } } }
-
-        function updateStats() { document.getElementById('totalCount').textContent = entries.length;
-            document.getElementById('ongoingCount').textContent = entries.filter(e => e.status === 'Ongoing').length;
-            document.getElementById('finishedCount').textContent = entries.filter(e => e.status === 'Finished').length;
-            document.getElementById('favCount').textContent = entries.filter(e => e.favorite).length; }
-
-        function getPct(e) { return (!e.totalChapters || e.totalChapters === 0) ? 0 : Math.min(100, Math.round((e
-                .lastChapter / e.totalChapters) * 100)); }
-
-        function starsHTML(r) { let h = ''; for (let i = 1; i <= 10; i++) h += i <= r ? '★' :
-                '<span class="empty">☆</span>'; return h; }
-
-        function sCls(s) { return { Ongoing: 'ongoing', Finished: 'finished', Hiatus: 'hiatus', Dropped: 'dropped' } [s] ||
-            'ongoing'; }
-
-        function tCls(t) { return { Manhwa: 'manhwa', Manhua: 'manhua', Manga: 'manga', Comic: 'comic' } [t] || 'manhwa'; }
-
-        function tFlg(t) { return { Manhwa: '🇰🇷', Manhua: '🇨🇳', Manga: '🇯🇵', Comic: '💬' } [t] || '📚'; }
-
-        function esc(s) { const d = document.createElement('div');
-            d.textContent = s || ''; return d.innerHTML; }
+        const STORE='b_v9',STREAK_K='b_sk';let entries=[],editIdx=-1,tempCover=null,prevDone=0,lastSave=0,rto=null,todayStr=new Date().toDateString();
+        function load(){const r=localStorage.getItem(STORE);if(r)try{entries=JSON.parse(r);}catch(e){entries=[];}if(!entries.length){for(const k of['binge_v8','b_v9']){const x=localStorage.getItem(k);if(x)try{entries=JSON.parse(x);if(entries.length){localStorage.setItem(STORE,x);break;}}catch(e){}}}entries.sort((a,b)=>(a.title||'').localeCompare(b.title||''));prevDone=entries.filter(e=>e.status==='Finished'&&getPct(e)===100).length;}
+        function save(s=false){const n=Date.now();if(n-lastSave<300&&s)return;lastSave=n;try{localStorage.setItem(STORE,JSON.stringify(entries));updateStats();updateStreak();if(!s){const t=document.getElementById('saveToast');t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1200)}}catch(e){}}
+        function updateStreak(){let sd={lastDate:todayStr,count:0};try{const r=localStorage.getItem(STREAK_K);if(r)sd=JSON.parse(r);}catch(e){}const ld=new Date(sd.lastDate),yd=new Date();yd.setDate(yd.getDate()-1);const oc=sd.count;if(todayStr===sd.lastDate){}else if(ld.toDateString()===yd.toDateString()){sd.count++;sd.lastDate=todayStr}else{sd.count=1;sd.lastDate=todayStr}localStorage.setItem(STREAK_K,JSON.stringify(sd));const b=document.getElementById('streakBadge');if(sd.count>0){b.style.display='inline-block';b.textContent=`🔥 ${sd.count} day streak`;if(sd.count>oc&&oc>0){playSound('streak');spawnSparkles(innerWidth/2,120,8)}}}
+        function updateStats(){document.getElementById('totalCount').textContent=entries.length;document.getElementById('ongoingCount').textContent=entries.filter(e=>e.status==='Ongoing').length;document.getElementById('finishedCount').textContent=entries.filter(e=>e.status==='Finished').length;document.getElementById('favCount').textContent=entries.filter(e=>e.favorite).length;}
+        function getPct(e){return(!e.totalChapters||e.totalChapters===0)?0:Math.min(100,Math.round((e.lastChapter/e.totalChapters)*100));}
+        function starsHTML(r){let h='';for(let i=1;i<=10;i++)h+=i<=r?'★':'<span class="empty">☆</span>';return h;}
+        function sCls(s){return{Ongoing:'ongoing',Finished:'finished',Hiatus:'hiatus',Dropped:'dropped'}[s]||'ongoing';}
+        function tCls(t){return{Manhwa:'manhwa',Manhua:'manhua',Manga:'manga',Comic:'comic'}[t]||'manhwa';}
+        function tFlg(t){return{Manhwa:'🇰🇷',Manhua:'🇨🇳',Manga:'🇯🇵',Comic:'💬'}[t]||'📚';}
+        function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
 
         // ═══════════════ RENDER ═══════════════
-        function debouncedRender() { clearTimeout(rto);
-            rto = setTimeout(renderList, 100); }
-
-        function renderList() { const q = document.getElementById('searchInput').value.toLowerCase(),
-                sf = document.getElementById('statusFilter').value,
-                tf = document.getElementById('typeFilter').value,
-                sb = document.getElementById('sortBy').value; let f = [...entries]; if (q) f = f.filter(e => (e.title ||
-                    '').toLowerCase().includes(q) || (e.genres || '').toLowerCase().includes(q) || (e.notes || '')
-                .toLowerCase().includes(q) || (e.altTitles || '').toLowerCase().includes(q) || (e.customTags || '')
-                .toLowerCase().includes(q)); if (sf !== 'all') f = f.filter(e => e.status === sf); if (tf !== 'all') f = f
-                .filter(e => e.type === tf); switch (sb) { case 'title':
-                    f.sort((a, b) => (a.title || '').localeCompare(b.title || '')); break; case 'rating':
-                    f.sort((a, b) => (b.rating || 0) - (a.rating || 0)); break; case 'recent':
-                    f.sort((a, b) => new Date(b.lastReadDate || b.dateAdded || 0) - new Date(a.lastReadDate || a.dateAdded ||
-                        0)); break; case 'progress':
-                    f.sort((a, b) => getPct(b) - getPct(a)); break } const ct = document.getElementById('entryList'),
-                em = document.getElementById('emptyState'); if (!f.length) { ct.innerHTML = '';
-                em.style.display = 'block' } else { em.style.display = 'none';
-                ct.innerHTML = f.map((e, i) => { const ri = entries.indexOf(e),
-                        pct = getPct(e),
-                        done = e.status === 'Finished' && pct === 100,
-                        gn = (e.genres || '').split(',').map(g => g.trim()).filter(g => g),
-                        ctags = (e.customTags || '').split(',').map(g => g.trim()).filter(g => g),
-                        lrd = e.lastReadDate ? new Date(e.lastReadDate).toLocaleDateString('en-GB', { day: 'numeric',
-                            month: 'short', year: 'numeric' }) : '',
-                        emotion = e.emotion || ''; return `
+        function debouncedRender(){clearTimeout(rto);rto=setTimeout(renderList,100);}
+        function renderList(){const q=document.getElementById('searchInput').value.toLowerCase(),sf=document.getElementById('statusFilter').value,tf=document.getElementById('typeFilter').value,sb=document.getElementById('sortBy').value;let f=[...entries];if(q)f=f.filter(e=>(e.title||'').toLowerCase().includes(q)||(e.genres||'').toLowerCase().includes(q)||(e.notes||'').toLowerCase().includes(q)||(e.altTitles||'').toLowerCase().includes(q)||(e.customTags||'').toLowerCase().includes(q));if(sf!=='all')f=f.filter(e=>e.status===sf);if(tf!=='all')f=f.filter(e=>e.type===tf);switch(sb){case'title':f.sort((a,b)=>(a.title||'').localeCompare(b.title||''));break;case'rating':f.sort((a,b)=>(b.rating||0)-(a.rating||0));break;case'recent':f.sort((a,b)=>new Date(b.lastReadDate||b.dateAdded||0)-new Date(a.lastReadDate||a.dateAdded||0));break;case'progress':f.sort((a,b)=>getPct(b)-getPct(a));break}const ct=document.getElementById('entryList'),em=document.getElementById('emptyState');if(!f.length){ct.innerHTML='';em.style.display='block'}else{em.style.display='none';ct.innerHTML=f.map((e,i)=>{const ri=entries.indexOf(e),pct=getPct(e),done=e.status==='Finished'&&pct===100,gn=(e.genres||'').split(',').map(g=>g.trim()).filter(g=>g),ctags=(e.customTags||'').split(',').map(g=>g.trim()).filter(g=>g),lrd=e.lastReadDate?new Date(e.lastReadDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'',emotion=e.emotion||'';return`
                 <div class="entry-card ${e.favorite?'favorite':''} ${done?'completed-glow':''}" style="animation-delay:${i*0.015}s">
                   <div class="card-row">
                     <div class="cover-thumb" onclick="changeCoverDirect(${ri})" style="${e.coverData?`background-image:url(${e.coverData});background-size:cover;background-position:center`:''}">
@@ -631,327 +387,67 @@
                       </div>
                     </div>
                   </div>
-                </div>` }).join('') }
-            updateStats() }
+                </div>`}).join('')}updateStats()}
 
         // ═══════════════ ACTIONS ═══════════════
-        function quickAdd(i) { const e = entries[i];
-            e.lastChapter = (e.lastChapter || 0) + 1;
-            e.lastReadDate = new Date().toISOString(); if (e.totalChapters && e.lastChapter > e.totalChapters) e
-                .totalChapters = e.lastChapter; if (getPct(e) === 100 && e.status === 'Ongoing') spawnConfetti(14);
-            playSound('chapter');
-            save();
-            renderList() }
-
-        function toggleFav(ev, i) { entries[i].favorite = !entries[i].favorite; if (entries[i].favorite && ev) spawnHearts(ev
-                .clientX || innerWidth / 2, ev.clientY || innerHeight / 2, 5);
-            playSound('favorite');
-            save();
-            renderList() }
-
-        function delEntry(i) { if (confirm(`Delete "${entries[i].title}"? 💔`)) { entries.splice(i, 1);
-                playSound('delete');
-                save();
-                renderList() } }
-
-        function updateAllOngoing() { const og = entries.filter(e => e.status === 'Ongoing'); if (!og.length) { alert(
-                'No ongoing entries!'); return } if (confirm(`+1 chapter to ${og.length} ongoing?`)) { playSound(
-                    'updateAll');
-                spawnSparkles(innerWidth / 2, innerHeight / 2, 8);
-                og.forEach(e => { e.lastChapter = (e.lastChapter || 0) + 1;
-                    e.lastReadDate = new Date().toISOString() });
-                save();
-                renderList() } }
-
-        function changeCoverDirect(i) { const inp = document.createElement('input');
-            inp.type = 'file';
-            inp.accept = 'image/*';
-            inp.onchange = function(ev) { if (!ev.target.files[0]) return;
-                playSound('cover');
-                resizeImg(ev.target.files[0], url => { entries[i].coverData = url;
-                    save();
-                    renderList() }) };
-            inp.click() }
-
-        function resizeImg(file, cb) { const r = new FileReader();
-            r.onload = function(ev) { const img = new Image();
-                img.onload = function() { const cv = document.createElement('canvas'),
-                        mw = 240,
-                        mh = 340; let w = img.width,
-                        h = img.height; if (w > mw) { h *= mw / w;
-                        w = mw } if (h > mh) { w *= mh / h;
-                        h = mh }
-                    cv.width = w;
-                    cv.height = h;
-                    cv.getContext('2d').drawImage(img, 0, 0, w, h);
-                    cb(cv.toDataURL('image/jpeg', 0.7)) };
-                img.src = ev.target.result };
-            r.readAsDataURL(file) }
+        function quickAdd(i){const e=entries[i];e.lastChapter=(e.lastChapter||0)+1;e.lastReadDate=new Date().toISOString();if(e.totalChapters&&e.lastChapter>e.totalChapters)e.totalChapters=e.lastChapter;if(getPct(e)===100&&e.status==='Ongoing')spawnConfetti(14);playSound('chapter');save();renderList()}
+        function toggleFav(ev,i){entries[i].favorite=!entries[i].favorite;if(entries[i].favorite&&ev)spawnHearts(ev.clientX||innerWidth/2,ev.clientY||innerHeight/2,5);playSound('favorite');save();renderList()}
+        function delEntry(i){if(confirm(`Delete "${entries[i].title}"? 💔`)){entries.splice(i,1);playSound('delete');save();renderList()}}
+        function updateAllOngoing(){const og=entries.filter(e=>e.status==='Ongoing');if(!og.length){alert('No ongoing entries!');return}if(confirm(`+1 chapter to ${og.length} ongoing?`)){playSound('updateAll');spawnSparkles(innerWidth/2,innerHeight/2,8);og.forEach(e=>{e.lastChapter=(e.lastChapter||0)+1;e.lastReadDate=new Date().toISOString()});save();renderList()}}
+        function changeCoverDirect(i){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.onchange=function(ev){if(!ev.target.files[0])return;playSound('cover');resizeImg(ev.target.files[0],url=>{entries[i].coverData=url;save();renderList()})};inp.click()}
+        function resizeImg(file,cb){const r=new FileReader();r.onload=function(ev){const img=new Image();img.onload=function(){const cv=document.createElement('canvas'),mw=240,mh=340;let w=img.width,h=img.height;if(w>mw){h*=mw/w;w=mw}if(h>mh){w*=mh/h;h=mh}cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);cb(cv.toDataURL('image/jpeg',0.7))};img.src=ev.target.result};r.readAsDataURL(file)}
 
         // ═══════════════ READ LINKS ═══════════════
-        let readIdx = -1;
-
-        function openRead(i) { readIdx = i;
-            document.getElementById('readModalOverlay').style.display = 'flex';
-            document.getElementById('readLinksList').innerHTML =
-                '<div style="text-align:center;padding:10px;font-size:10px">🔍 Searching...</div>';
-            searchReads(entries[i].title) }
-
-        function closeReadModal() { document.getElementById('readModalOverlay').style.display = 'none';
-            readIdx = -1 }
-
-        async function searchReads(title) { const list = document.getElementById('readLinksList'),
-                links = []; try { const r = await fetch(
-                    `https://api.mangadex.org/manga?title=${encodeURIComponent(title)}&limit=3`, { signal: AbortSignal
-                        .timeout(3500) }); if (r.ok) { const d = await r.json(); for (const m of d.data || []) links
-                        .push({ label: `📖 MangaDex: ${m.attributes.title?.en||title}`,
-                            url: `https://mangadex.org/title/${m.id}` }) } } catch (e) {} try { const q =
-                    `query($s:String){Page(perPage:2){media(search:$s,type:MANGA){title{romaji english}siteUrl}}}`; const
-                    r = await fetch('https://graphql.anilist.co', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ query: q, variables: { s: title } }), signal: AbortSignal.timeout(3500) }); if (
-                        r.ok) { const d = await r.json(); for (const m of d.data?.Page?.media || []) links.push({ label: `📚 AniList: ${m.title.romaji||title}`,
-                            url: m.siteUrl }) } } catch (e) {}
-            links.push({ label: '🌐 Webtoon', url: `https://www.webtoons.com/en/search?keyword=${encodeURIComponent(title)}` });
-            links.push({ label: '🔍 Google search', url: `https://www.google.com/search?q=${encodeURIComponent(title+'+read+online')}` });
-            list.innerHTML = links.length ? links.map(l =>
-                `<div class="read-link-row"><span>${l.label}</span><a href="${l.url}" target="_blank" onclick="playSound('click')">Open ↗</a></div>`
-                ).join('') : '<div style="text-align:center;padding:8px;font-size:10px">No links. Try web search.</div>' }
-
-        function searchReadLinksWeb() { const title = entries[readIdx]?.title || '';
-            window.open(`https://www.google.com/search?q=${encodeURIComponent(title+'+read+online')}`, '_blank');
-            playSound('click') }
+        let readIdx=-1;
+        function openRead(i){readIdx=i;document.getElementById('readModalOverlay').style.display='flex';document.getElementById('readLinksList').innerHTML='<div style="text-align:center;padding:10px;font-size:10px">🔍 Searching...</div>';searchReads(entries[i].title)}
+        function closeReadModal(){document.getElementById('readModalOverlay').style.display='none';readIdx=-1}
+        async function searchReads(title){const list=document.getElementById('readLinksList'),links=[];try{const r=await fetch(`https://api.mangadex.org/manga?title=${encodeURIComponent(title)}&limit=3`,{signal:AbortSignal.timeout(3500)});if(r.ok){const d=await r.json();for(const m of d.data||[])links.push({label:`📖 MangaDex: ${m.attributes.title?.en||title}`,url:`https://mangadex.org/title/${m.id}`})}}catch(e){}try{const q=`query($s:String){Page(perPage:2){media(search:$s,type:MANGA){title{romaji english}siteUrl}}}`;const r=await fetch('https://graphql.anilist.co',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,variables:{s:title}}),signal:AbortSignal.timeout(3500)});if(r.ok){const d=await r.json();for(const m of d.data?.Page?.media||[])links.push({label:`📚 AniList: ${m.title.romaji||title}`,url:m.siteUrl})}}catch(e){}links.push({label:'🌐 Webtoon',url:`https://www.webtoons.com/en/search?keyword=${encodeURIComponent(title)}`});links.push({label:'🔍 Google search',url:`https://www.google.com/search?q=${encodeURIComponent(title+'+read+online')}`});list.innerHTML=links.length?links.map(l=>`<div class="read-link-row"><span>${l.label}</span><a href="${l.url}" target="_blank" onclick="playSound('click')">Open ↗</a></div>`).join(''):'<div style="text-align:center;padding:8px;font-size:10px">No links. Try web search.</div>'}
+        function searchReadLinksWeb(){const title=entries[readIdx]?.title||'';window.open(`https://www.google.com/search?q=${encodeURIComponent(title+'+read+online')}`,'_blank');playSound('click')}
 
         // ═══════════════ ONLINE SEARCH (Multi-Source) ═══════════════
-        async function searchOnline() { const q = document.getElementById('onlineSearchInput').value.trim(); if (!q) return;
-            const rd = document.getElementById('searchResults');
-            rd.style.display = 'block';
-            rd.innerHTML = '<div style="text-align:center;padding:10px;font-size:10px">🔍 Searching 4 sources...</div>'; const
-                all = [],
-                seen = new Set(); try { const gql =
-                    `query($s:String){Page(perPage:6){media(search:$s,type:MANGA){id title{romaji english native}format status chapters genres coverImage{large}}}}}`
-                ; const r = await fetch('https://graphql.anilist.co', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: gql, variables: { s: q } }), signal: AbortSignal.timeout(4000) }); if (r
-                    .ok) { const d = await r.json(); for (const m of d.data?.Page?.media || []) { const k = m.id +
-                            '_al'; if (seen.has(k)) continue;
-                    seen.add(k); const t = m.title.romaji || m.title.english || m.title.native || '?'; let tp = 'Manga'; if (
-                        m.format === 'MANHWA') tp = 'Manhwa'; if (m.format === 'MANHUA') tp = 'Manhua';
-                    all.push({ title: t, alt: [m.title.english, m.title.native].filter(x => x && x !== t).join(', '),
-                        type: tp, status: m.status === 'FINISHED' ? 'Finished' : m.status === 'RELEASING' ?
-                        'Ongoing' : m.status || '?', chapters: m.chapters || '?', genres: (m.genres || []).slice(0, 4)
-                        .join(', '), cover: m.coverImage?.large || '', source: 'AniList' }) } } } catch (e) {} try { const
-                    r = await fetch(`https://kitsu.io/api/edge/manga?filter[text]=${encodeURIComponent(q)}&page[limit]=5`, { signal: AbortSignal
-                        .timeout(4000) }); if (r.ok) { const d = await r.json(); for (const m of d.data || []) { const k =
-                            m.id + '_kt'; if (seen.has(k)) continue;
-                    seen.add(k); const a = m.attributes || {}; const t = a.canonicalTitle || a.titles?.en || a.titles
-                        ?.en_jp || '?';
-                    all.push({ title: t, alt: [a.titles?.ja_jp, a.titles?.ko_kr].filter(x => x && x !== t).join(', '),
-                        type: a.subtype === 'manhwa' ? 'Manhwa' : a.subtype === 'manhua' ? 'Manhua' : 'Manga',
-                        status: a.status === 'finished' ? 'Finished' : a.status === 'current' ? 'Ongoing' : a
-                        .status || '?', chapters: a.chapterCount || '?', genres: '', cover: a.posterImage?.large ||
-                        '', source: 'Kitsu' }) } } } catch (e) {} try { const r = await fetch(
-                    `https://api.mangadex.org/manga?title=${encodeURIComponent(q)}&limit=5&includes[]=cover_art`, { signal: AbortSignal
-                        .timeout(4000) }); if (r.ok) { const d = await r.json(); for (const m of d.data || []) { const k =
-                            m.id + '_md'; if (seen.has(k)) continue;
-                    seen.add(k); const a = m.attributes || {}; const t = a.title?.en || Object.values(a.title || {})[
-                        0
-                    ] || '?'; const cf = m.relationships?.find(rr => rr.type === 'cover_attr')?.attributes?.fileName ||
-                        ''; const cv = cf ? `https://uploads.mangadex.org/covers/${m.id}/${cf}.256.jpg` : '';
-                    all.push({ title: t, alt: '', type: a.originalLanguage === 'ko' ? 'Manhwa' : a
-                            .originalLanguage === 'zh' ? 'Manhua' : 'Manga', status: a.status === 'completed' ?
-                            'Finished' : a.status === 'ongoing' ? 'Ongoing' : a.status || '?', chapters: a
-                            .lastChapter || '?', genres: (a.tags || []).slice(0, 4).map(tg => tg.attributes?.name
-                                ?.en).filter(Boolean).join(', '), cover: cv, source: 'MangaDex' }) } } } catch (e) {} try {
-                const r = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q+' comic')}&maxResults=4`, { signal: AbortSignal
-                        .timeout(3500) }); if (r.ok) { const d = await r.json(); for (const item of d.items || []) { const
-                            k = item.id + '_gb'; if (seen.has(k)) continue;
-                    seen.add(k); const info = item.volumeInfo || {};
-                    all.push({ title: info.title || '?', alt: info.subtitle || '', type: 'Comic', status: '?',
-                        chapters: info.pageCount || '?', genres: (info.categories || []).slice(0, 3).join(', '),
-                        cover: info.imageLinks?.thumbnail || '', source: 'Google Books' }) } } } catch (e) {} const uniq =
-                [],
-                ts = new Set(); for (const r of all) { const nm = r.title.toLowerCase().replace(/[^a-z0-9]/g, ''); if (ts
-                    .has(nm)) continue;
-                ts.add(nm);
-                uniq.push(r) } if (!uniq.length) { rd.innerHTML =
-                    '<div style="text-align:center;padding:10px;font-size:10px">😢 No results. Try different keywords.</div>'; return }
-            rd.innerHTML = uniq.slice(0, 12).map(r => `
-            <div class="search-result-row" onclick="autoFill('${esc(r.title).replace(/'/g,"&#39;")}','${esc(r.alt).replace(/'/g,"&#39;")}','${r.type}','${r.status}','${r.chapters}','${esc(r.genres).replace(/'/g,"&#39;")}','${r.cover}')">
+        async function searchOnline(){const q=document.getElementById('onlineSearchInput').value.trim();if(!q)return;const rd=document.getElementById('searchResults');rd.style.display='block';rd.innerHTML='<div style="text-align:center;padding:10px;font-size:10px">🔍 Searching 4 sources...</div>';const all=[],seen=new Set();try{const gql=`query($s:String){Page(perPage:6){media(search:$s,type:MANGA){id title{romaji english native}format status chapters genres coverImage{large}}}}}`;const r=await fetch('https://graphql.anilist.co',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:gql,variables:{s:q}}),signal:AbortSignal.timeout(4000)});if(r.ok){const d=await r.json();for(const m of d.data?.Page?.media||[]){const k=m.id+'_al';if(seen.has(k))continue;seen.add(k);const t=m.title.romaji||m.title.english||m.title.native||'?';let tp='Manga';if(m.format==='MANHWA')tp='Manhwa';if(m.format==='MANHUA')tp='Manhua';all.push({title:t,alt:[m.title.english,m.title.native].filter(x=>x&&x!==t).join(', '),type:tp,status:m.status==='FINISHED'?'Finished':m.status==='RELEASING'?'Ongoing':m.status||'?',chapters:m.chapters||'?',genres:(m.genres||[]).slice(0,4).join(', '),cover:m.coverImage?.large||'',source:'AniList'})}}}catch(e){}try{const r=await fetch(`https://kitsu.io/api/edge/manga?filter[text]=${encodeURIComponent(q)}&page[limit]=5`,{signal:AbortSignal.timeout(4000)});if(r.ok){const d=await r.json();for(const m of d.data||[]){const k=m.id+'_kt';if(seen.has(k))continue;seen.add(k);const a=m.attributes||{};const t=a.canonicalTitle||a.titles?.en||a.titles?.en_jp||'?';all.push({title:t,alt:[a.titles?.ja_jp,a.titles?.ko_kr].filter(x=>x&&x!==t).join(', '),type:a.subtype==='manhwa'?'Manhwa':a.subtype==='manhua'?'Manhua':'Manga',status:a.status==='finished'?'Finished':a.status==='current'?'Ongoing':a.status||'?',chapters:a.chapterCount||'?',genres:'',cover:a.posterImage?.large||'',source:'Kitsu'})}}}catch(e){}try{const r=await fetch(`https://api.mangadex.org/manga?title=${encodeURIComponent(q)}&limit=5&includes[]=cover_art`,{signal:AbortSignal.timeout(4000)});if(r.ok){const d=await r.json();for(const m of d.data||[]){const k=m.id+'_md';if(seen.has(k))continue;seen.add(k);const a=m.attributes||{};const t=a.title?.en||Object.values(a.title||{})[0]||'?';const cf=m.relationships?.find(rr=>rr.type==='cover_art')?.attributes?.fileName||'';const cv=cf?`https://uploads.mangadex.org/covers/${m.id}/${cf}.256.jpg`:'';all.push({title:t,alt:'',type:a.originalLanguage==='ko'?'Manhwa':a.originalLanguage==='zh'?'Manhua':'Manga',status:a.status==='completed'?'Finished':a.status==='ongoing'?'Ongoing':a.status||'?',chapters:a.lastChapter||'?',genres:(a.tags||[]).slice(0,4).map(tg=>tg.attributes?.name?.en).filter(Boolean).join(', '),cover:cv,source:'MangaDex'})}}}catch(e){}try{const r=await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q+' comic')}&maxResults=4`,{signal:AbortSignal.timeout(3500)});if(r.ok){const d=await r.json();for(const item of d.items||[]){const k=item.id+'_gb';if(seen.has(k))continue;seen.add(k);const info=item.volumeInfo||{};all.push({title:info.title||'?',alt:info.subtitle||'',type:'Comic',status:'?',chapters:info.pageCount||'?',genres:(info.categories||[]).slice(0,3).join(', '),cover:info.imageLinks?.thumbnail||'',source:'Google Books'})}}}catch(e){}const uniq=[],ts=new Set();for(const r of all){const nm=r.title.toLowerCase().replace(/[^a-z0-9]/g,'');if(ts.has(nm))continue;ts.add(nm);uniq.push(r)}if(!uniq.length){rd.innerHTML='<div style="text-align:center;padding:10px;font-size:10px">😢 No results. Try different keywords.</div>';return}
+        // FIXED: Use data attributes instead of inline onclick
+        rd.innerHTML = uniq.slice(0,12).map((r,i) => `
+            <div class="search-result-row" data-title="${esc(r.title).replace(/"/g,'&quot;')}" data-alt="${esc(r.alt).replace(/"/g,'&quot;')}" data-type="${r.type}" data-status="${r.status}" data-ch="${r.chapters}" data-gen="${esc(r.genres).replace(/"/g,'&quot;')}" data-cover="${r.cover}">
               ${r.cover?`<img src="${r.cover}" onerror="this.remove()">`:'<div style="width:30px;height:42px;border-radius:5px;background:var(--pink-light);display:flex;align-items:center;justify-content:center;font-size:18px">📸</div>'}
               <div style="flex:1;font-size:9px"><b>${esc(r.title)}</b> <span class="search-source-tag">${r.source}</span><br>${tFlg(r.type)} ${r.type} · ${r.status} · Ch ${r.chapters}</div>
-            </div>`).join('') }
+            </div>`).join('');
+        // Add click listeners properly
+        document.querySelectorAll('.search-result-row').forEach(row => {
+            row.addEventListener('click', function(){
+                const title = (this.getAttribute('data-title')||'').replace(/&quot;/g,'"');
+                const alt = (this.getAttribute('data-alt')||'').replace(/&quot;/g,'"');
+                const type = this.getAttribute('data-type')||'Manga';
+                const status = this.getAttribute('data-status')||'Ongoing';
+                const ch = this.getAttribute('data-ch')||'';
+                const gen = (this.getAttribute('data-gen')||'').replace(/&quot;/g,'"');
+                const cover = this.getAttribute('data-cover')||'';
+                autoFill(title, alt, type, status, ch, gen, cover);
+            });
+        });
+        }
 
-        function autoFill(title, alt, type, status, ch, gen, cover) { document.getElementById('inputTitle').value = title;
-            document.getElementById('inputAltTitles').value = alt;
-            document.getElementById('inputType').value = type;
-            document.getElementById('inputStatus').value = status;
-            document.getElementById('inputTotalChapters').value = ch === '?' ? '' : ch;
-            document.getElementById('inputGenres').value = gen; if (cover && cover !== 'undefined') { tempCover = cover;
-                setCoverPrev(cover) }
-            document.getElementById('searchResults').style.display = 'none';
-            document.getElementById('onlineSearchInput').value = '';
-            playSound('click');
-            spawnSparkles(innerWidth / 2, innerHeight / 2, 4) }
+        function autoFill(title,alt,type,status,ch,gen,cover){document.getElementById('inputTitle').value=title;document.getElementById('inputAltTitles').value=alt;document.getElementById('inputType').value=type;document.getElementById('inputStatus').value=status;document.getElementById('inputTotalChapters').value=ch==='?'?'':ch;document.getElementById('inputGenres').value=gen;if(cover&&cover!=='undefined'){tempCover=cover;setCoverPrev(cover)}document.getElementById('searchResults').style.display='none';document.getElementById('onlineSearchInput').value='';playSound('click');spawnSparkles(innerWidth/2,innerHeight/2,4)}
 
         // ═══════════════ MODAL ═══════════════
-        function openAddModal() { editIdx = -1;
-            tempCover = null;
-            document.getElementById('modalTitle').textContent = '🌸 Add New Entry';
-            resetForm();
-            document.getElementById('modalOverlay').style.display = 'flex';
-            document.getElementById('searchResults').style.display = 'none';
-            document.getElementById('onlineSearchInput').value = '';
-            playSound('open');
-            setTimeout(() => document.getElementById('inputTitle').focus(), 200) }
-
-        function openEdit(i) { editIdx = i; const e = entries[i];
-            tempCover = e.coverData || null;
-            document.getElementById('modalTitle').textContent = '✏️ Edit Entry';
-            document.getElementById('searchResults').style.display = 'none';
-            document.getElementById('onlineSearchInput').value = '';
-            setCoverPrev(e.coverData);
-            document.getElementById('inputTitle').value = e.title || '';
-            document.getElementById('inputAltTitles').value = e.altTitles || '';
-            document.getElementById('inputType').value = e.type || 'Manhwa';
-            document.getElementById('inputStatus').value = e.status || 'Ongoing';
-            document.getElementById('inputEmotion').value = e.emotion || '';
-            document.getElementById('inputLastChapter').value = e.lastChapter || 0;
-            document.getElementById('inputTotalChapters').value = e.totalChapters || '';
-            document.getElementById('inputRating').value = e.rating || 0;
-            document.getElementById('inputGenres').value = e.genres || '';
-            document.getElementById('inputCustomTags').value = e.customTags || '';
-            document.getElementById('inputPriority').value = e.priority || 'Medium';
-            document.getElementById('inputReleaseDay').value = e.releaseDay || '';
-            document.getElementById('inputSource').value = e.source || '';
-            document.getElementById('inputNotes').value = e.notes || '';
-            updateRatingDisplay();
-            document.getElementById('modalOverlay').style.display = 'flex';
-            playSound('click') }
-
-        function resetForm() { ['inputTitle', 'inputAltTitles', 'inputLastChapter', 'inputTotalChapters', 'inputGenres',
-                'inputCustomTags', 'inputSource', 'inputNotes'
-            ].forEach(id => document.getElementById(id).value = '');
-            document.getElementById('coverPreview').src = '';
-            document.getElementById('coverPreview').style.backgroundImage = '';
-            document.getElementById('coverPreview').style.border = '3px dashed #e8c8d8';
-            document.getElementById('inputType').value = 'Manhwa';
-            document.getElementById('inputStatus').value = 'Ongoing';
-            document.getElementById('inputEmotion').value = '';
-            document.getElementById('inputRating').value = 0;
-            document.getElementById('inputPriority').value = 'Medium';
-            document.getElementById('inputReleaseDay').value = '';
-            updateRatingDisplay() }
-
-        function setCoverPrev(url) { const p = document.getElementById('coverPreview'); if (url) { p.src = url;
-                p.style.backgroundImage = `url(${url})`;
-                p.style.backgroundSize = 'cover';
-                p.style.backgroundPosition = 'center';
-                p.style.border = '3px solid var(--pink)' } else { p.src = '';
-                p.style.backgroundImage = '';
-                p.style.border = '3px dashed #e8c8d8' } }
-
-        function closeModal() { document.getElementById('modalOverlay').style.display = 'none';
-            editIdx = -1;
-            tempCover = null;
-            playSound('close') }
-
-        function handleCoverUpload(ev) { if (!ev.target.files[0]) return;
-            playSound('click');
-            resizeImg(ev.target.files[0], url => { tempCover = url;
-                setCoverPrev(url) }) }
-
-        function updateRatingDisplay() { const r = parseInt(document.getElementById('inputRating').value) || 0;
-            document.getElementById('ratingDisplay').textContent = '★'.repeat(r) + '☆'.repeat(10 - r) }
-
-        function saveEntry() { const title = document.getElementById('inputTitle').value.trim(); if (!title) { alert(
-                '⚠️ Please enter a title!');
-                document.getElementById('inputTitle').focus(); return } const entry = { title,
-                altTitles: document.getElementById('inputAltTitles').value.trim(),
-                type: document.getElementById('inputType').value,
-                status: document.getElementById('inputStatus').value,
-                emotion: document.getElementById('inputEmotion').value,
-                lastChapter: parseInt(document.getElementById('inputLastChapter').value) || 0,
-                totalChapters: parseInt(document.getElementById('inputTotalChapters').value) || 0,
-                rating: parseInt(document.getElementById('inputRating').value) || 0,
-                genres: document.getElementById('inputGenres').value.trim(),
-                customTags: document.getElementById('inputCustomTags').value.trim(),
-                priority: document.getElementById('inputPriority').value,
-                releaseDay: document.getElementById('inputReleaseDay').value,
-                source: document.getElementById('inputSource').value.trim(),
-                notes: document.getElementById('inputNotes').value.trim(),
-                coverData: tempCover || null,
-                favorite: editIdx >= 0 ? entries[editIdx]?.favorite : false,
-                dateAdded: editIdx >= 0 ? entries[editIdx]?.dateAdded : new Date().toISOString(),
-                lastReadDate: editIdx >= 0 ? entries[editIdx]?.lastReadDate : null }; if (editIdx >= 0) entries[editIdx] =
-                entry;
-            else entries.push(entry);
-            entries.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-            playSound('save');
-            spawnSparkles(innerWidth / 2, innerHeight / 2, 6);
-            save();
-            closeModal();
-            renderList(); const cur = entries.filter(e => e.status === 'Finished' && getPct(e) === 100).length; if (cur >
-                prevDone) spawnConfetti(16);
-            prevDone = cur }
+        function openAddModal(){editIdx=-1;tempCover=null;document.getElementById('modalTitle').textContent='🌸 Add New Entry';resetForm();document.getElementById('modalOverlay').style.display='flex';document.getElementById('searchResults').style.display='none';document.getElementById('onlineSearchInput').value='';playSound('open');setTimeout(()=>document.getElementById('inputTitle').focus(),200)}
+        function openEdit(i){editIdx=i;const e=entries[i];tempCover=e.coverData||null;document.getElementById('modalTitle').textContent='✏️ Edit Entry';document.getElementById('searchResults').style.display='none';document.getElementById('onlineSearchInput').value='';setCoverPrev(e.coverData);document.getElementById('inputTitle').value=e.title||'';document.getElementById('inputAltTitles').value=e.altTitles||'';document.getElementById('inputType').value=e.type||'Manhwa';document.getElementById('inputStatus').value=e.status||'Ongoing';document.getElementById('inputEmotion').value=e.emotion||'';document.getElementById('inputLastChapter').value=e.lastChapter||0;document.getElementById('inputTotalChapters').value=e.totalChapters||'';document.getElementById('inputRating').value=e.rating||0;document.getElementById('inputGenres').value=e.genres||'';document.getElementById('inputCustomTags').value=e.customTags||'';document.getElementById('inputPriority').value=e.priority||'Medium';document.getElementById('inputReleaseDay').value=e.releaseDay||'';document.getElementById('inputSource').value=e.source||'';document.getElementById('inputNotes').value=e.notes||'';updateRatingDisplay();document.getElementById('modalOverlay').style.display='flex';playSound('click')}
+        function resetForm(){['inputTitle','inputAltTitles','inputLastChapter','inputTotalChapters','inputGenres','inputCustomTags','inputSource','inputNotes'].forEach(id=>document.getElementById(id).value='');document.getElementById('coverPreview').src='';document.getElementById('coverPreview').style.backgroundImage='';document.getElementById('coverPreview').style.border='3px dashed #e8c8d8';document.getElementById('inputType').value='Manhwa';document.getElementById('inputStatus').value='Ongoing';document.getElementById('inputEmotion').value='';document.getElementById('inputRating').value=0;document.getElementById('inputPriority').value='Medium';document.getElementById('inputReleaseDay').value='';updateRatingDisplay()}
+        function setCoverPrev(url){const p=document.getElementById('coverPreview');if(url){p.src=url;p.style.backgroundImage=`url(${url})`;p.style.backgroundSize='cover';p.style.backgroundPosition='center';p.style.border='3px solid var(--pink)'}else{p.src='';p.style.backgroundImage='';p.style.border='3px dashed #e8c8d8'}}
+        function closeModal(){document.getElementById('modalOverlay').style.display='none';editIdx=-1;tempCover=null;playSound('close')}
+        function handleCoverUpload(ev){if(!ev.target.files[0])return;playSound('click');resizeImg(ev.target.files[0],url=>{tempCover=url;setCoverPrev(url)})}
+        function updateRatingDisplay(){const r=parseInt(document.getElementById('inputRating').value)||0;document.getElementById('ratingDisplay').textContent='★'.repeat(r)+'☆'.repeat(10-r)}
+        function saveEntry(){const title=document.getElementById('inputTitle').value.trim();if(!title){alert('⚠️ Please enter a title!');document.getElementById('inputTitle').focus();return}const entry={title,altTitles:document.getElementById('inputAltTitles').value.trim(),type:document.getElementById('inputType').value,status:document.getElementById('inputStatus').value,emotion:document.getElementById('inputEmotion').value,lastChapter:parseInt(document.getElementById('inputLastChapter').value)||0,totalChapters:parseInt(document.getElementById('inputTotalChapters').value)||0,rating:parseInt(document.getElementById('inputRating').value)||0,genres:document.getElementById('inputGenres').value.trim(),customTags:document.getElementById('inputCustomTags').value.trim(),priority:document.getElementById('inputPriority').value,releaseDay:document.getElementById('inputReleaseDay').value,source:document.getElementById('inputSource').value.trim(),notes:document.getElementById('inputNotes').value.trim(),coverData:tempCover||null,favorite:editIdx>=0?entries[editIdx]?.favorite:false,dateAdded:editIdx>=0?entries[editIdx]?.dateAdded:new Date().toISOString(),lastReadDate:editIdx>=0?entries[editIdx]?.lastReadDate:null};if(editIdx>=0)entries[editIdx]=entry;else entries.push(entry);entries.sort((a,b)=>(a.title||'').localeCompare(b.title||''));playSound('save');spawnSparkles(innerWidth/2,innerHeight/2,6);save();closeModal();renderList();const cur=entries.filter(e=>e.status==='Finished'&&getPct(e)===100).length;if(cur>prevDone)spawnConfetti(16);prevDone=cur}
 
         // ═══════════════ EXPORT/IMPORT ═══════════════
-        function exportData() { playSound('export'); const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' }),
-                url = URL.createObjectURL(blob),
-                a = document.createElement('a');
-            a.href = url;
-            a.download = 'binge-bean-' + new Date().toISOString().slice(0, 10) + '.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            spawnSparkles(innerWidth / 2, innerHeight / 2, 7);
-            alert('✅ Backup saved!') }
-
-        function importData(ev) { const file = ev.target.files[0]; if (!file) return; if (!confirm(
-                '⚠️ Replace current list? Auto-backup saved.')) { ev.target.value = ''; return } try { localStorage.setItem(
-                    STORE + '_bak', JSON.stringify(entries)) } catch (e) {} const r = new FileReader();
-            r.onload = function(e) { try { const d = JSON.parse(e.target.result); if (Array.isArray(d)) { playSound(
-                        'import');
-                    entries = d;
-                    entries.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-                    save();
-                    renderList();
-                    spawnSparkles(innerWidth / 2, innerHeight / 2, 8);
-                    alert('✅ Imported!') } else alert('❌ Invalid file') } catch (er) { alert('❌ Error') } };
-            r.readAsText(file);
-            ev.target.value = '' }
+        function exportData(){playSound('export');const blob=new Blob([JSON.stringify(entries,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='binge-bean-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);spawnSparkles(innerWidth/2,innerHeight/2,7);alert('✅ Backup saved!')}
+        function importData(ev){const file=ev.target.files[0];if(!file)return;if(!confirm('⚠️ Replace current list? Auto-backup saved.')){ev.target.value='';return}try{localStorage.setItem(STORE+'_bak',JSON.stringify(entries))}catch(e){}const r=new FileReader();r.onload=function(e){try{const d=JSON.parse(e.target.result);if(Array.isArray(d)){playSound('import');entries=d;entries.sort((a,b)=>(a.title||'').localeCompare(b.title||''));save();renderList();spawnSparkles(innerWidth/2,innerHeight/2,8);alert('✅ Imported!')}else alert('❌ Invalid file')}catch(er){alert('❌ Error')}};r.readAsText(file);ev.target.value=''}
 
         // ═══════════════ DARK MODE ═══════════════
-        function toggleDarkMode() { document.body.classList.toggle('dark');
-            document.getElementById('darkToggle').textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
-            localStorage.setItem('b_d', document.body.classList.contains('dark')) }
+        function toggleDarkMode(){document.body.classList.toggle('dark');document.getElementById('darkToggle').textContent=document.body.classList.contains('dark')?'☀️':'🌙';localStorage.setItem('b_d',document.body.classList.contains('dark'))}
 
         // ═══════════════ INIT ═══════════════
-        function init() { load(); if (localStorage.getItem('b_d') === 'true') { document.body.classList.add('dark');
-                document.getElementById('darkToggle').textContent = '☀️' } if (localStorage.getItem('b_s') === 'false') { soundEnabled =
-                    false;
-                document.getElementById('soundToggle').textContent = '🔇' } if (localStorage.getItem('b_m') === 'true') { musicEnabled =
-                    true;
-                document.getElementById('musicToggle').textContent = '🎶';
-                setTimeout(startMusic, 500) } const mv = localStorage.getItem('b_mv'); if (mv) { musicVolume = parseInt(mv) /
-                100;
-                document.getElementById('musicVolume').value = mv }
-            prevDone = entries.filter(e => e.status === 'Finished' && getPct(e) === 100).length;
-            updateStreak();
-            renderList();
-            updateStats();
-            setInterval(() => save(true), 5000);
-            window.addEventListener('pagehide', () => save(true));
-            document.addEventListener('visibilitychange', () => { if (document.hidden) save(true) });
-            document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this)
-                    closeModal() });
-            document.getElementById('readModalOverlay').addEventListener('click', function(e) { if (e.target === this)
-                    closeReadModal() });
-            document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { if (document.getElementById(
-                        'modalOverlay').style.display === 'flex') closeModal(); if (document.getElementById(
-                        'readModalOverlay').style.display === 'flex') closeReadModal() } if ((e.ctrlKey || e.metaKey) &&
-                    e.key === 'k') { e.preventDefault();
-                    document.getElementById('searchInput').focus() } });
-            console.log('🐰 BingeBean ready! ✨') }
+        function init(){load();if(localStorage.getItem('b_d')==='true'){document.body.classList.add('dark');document.getElementById('darkToggle').textContent='☀️'}if(localStorage.getItem('b_s')==='false'){soundEnabled=false;document.getElementById('soundToggle').textContent='🔇'}if(localStorage.getItem('b_m')==='true'){musicEnabled=true;document.getElementById('musicToggle').textContent='🎶';setTimeout(startMusic,500)}const mv=localStorage.getItem('b_mv');if(mv){musicVolume=parseInt(mv)/100;document.getElementById('musicVolume').value=mv}prevDone=entries.filter(e=>e.status==='Finished'&&getPct(e)===100).length;updateStreak();renderList();updateStats();setInterval(()=>save(true),5000);window.addEventListener('pagehide',()=>save(true));document.addEventListener('visibilitychange',()=>{if(document.hidden)save(true)});document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal()});document.getElementById('readModalOverlay').addEventListener('click',function(e){if(e.target===this)closeReadModal()});document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(document.getElementById('modalOverlay').style.display==='flex')closeModal();if(document.getElementById('readModalOverlay').style.display==='flex')closeReadModal()}if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();document.getElementById('searchInput').focus()}});console.log('🐰 BingeBean ready! ✨')}
         init();
     </script>
 </body>
