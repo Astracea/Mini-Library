@@ -2,279 +2,363 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🌸 My Binge List 🌸</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#2d4a4a">
+    <title>📚 My Binge List</title>
     <style>
         :root {
-            --pink: #ffb8c6;
-            --pink-light: #ffe0e6;
-            --pink-dark: #f08a9e;
-            --purple: #d4b8ff;
-            --purple-light: #ede0ff;
-            --blue: #b8d4ff;
-            --blue-light: #e0eeff;
-            --mint: #b8ffd4;
-            --mint-light: #e0ffee;
-            --yellow: #fff3b8;
-            --peach: #ffd4b8;
-            --bg: #fff5f7;
+            --teal: #5c9e9e;
+            --teal-light: #d4ecec;
+            --teal-dark: #2d4a4a;
+            --mint: #7ec8a0;
+            --mint-light: #d4f0e0;
+            --warm-gray: #8c7c7c;
+            --warm-light: #f0ece8;
+            --cream: #faf7f2;
             --card: #ffffff;
-            --text: #5a4a5a;
-            --text-light: #8a7a8a;
-            --shadow: 0 4px 15px rgba(255, 184, 198, 0.25);
-            --shadow-hover: 0 8px 25px rgba(255, 184, 198, 0.4);
-            --radius: 20px;
+            --text: #3d3535;
+            --text-light: #6b6060;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.10);
+            --radius: 18px;
             --radius-sm: 12px;
             --radius-xs: 8px;
+            --accent: #e8a860;
+            --accent-light: #fdf0e0;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            overflow-y: scroll;
+            height: 100%;
         }
 
         body {
-            font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, sans-serif;
-            background: var(--bg);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--cream);
             color: var(--text);
             min-height: 100vh;
+            min-height: 100dvh;
             background-image:
-                radial-gradient(circle at 10% 20%, rgba(255, 184, 198, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 90% 80%, rgba(212, 184, 255, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 50% 50%, rgba(184, 212, 255, 0.1) 0%, transparent 50%);
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--pink-light);
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--pink);
-            border-radius: 10px;
+                radial-gradient(ellipse at 20% 10%, rgba(92, 158, 158, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 90%, rgba(232, 168, 96, 0.06) 0%, transparent 50%);
+            overscroll-behavior: contain;
         }
 
         .app-container {
-            max-width: 700px;
+            max-width: 680px;
             margin: 0 auto;
-            padding: 15px;
+            padding: 12px;
             padding-bottom: 100px;
+            -webkit-overflow-scrolling: touch;
         }
 
+        /* Header */
         .header {
             text-align: center;
-            padding: 20px 15px;
+            padding: 18px 10px 12px;
             position: relative;
         }
         .header .mascot {
-            font-size: 60px;
-            animation: bounce 2s ease-in-out infinite;
+            font-size: 50px;
             display: inline-block;
+            animation: gentleBounce 2.5s ease-in-out infinite;
         }
-        @keyframes bounce {
+        @keyframes gentleBounce {
             0%,
             100% {
                 transform: translateY(0);
             }
             50% {
-                transform: translateY(-15px);
+                transform: translateY(-8px);
             }
         }
         .header h1 {
-            font-size: 26px;
-            background: linear-gradient(135deg, var(--pink-dark), var(--purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 24px;
+            color: var(--teal-dark);
             font-weight: 800;
-            margin-top: 5px;
-            letter-spacing: -0.5px;
+            margin-top: 2px;
+            letter-spacing: -0.3px;
         }
         .header .subtitle {
-            font-size: 13px;
-            color: var(--text-light);
+            font-size: 12px;
+            color: var(--warm-gray);
             margin-top: 2px;
+            letter-spacing: 0.3px;
         }
-
-        .stats-bar {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-        .stat-chip {
-            background: white;
-            padding: 8px 14px;
+        .header .streak-badge {
+            display: inline-block;
+            background: var(--accent-light);
+            color: #8a6020;
+            padding: 5px 14px;
             border-radius: 20px;
             font-size: 12px;
+            font-weight: 700;
+            margin-top: 8px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(232, 168, 96, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(232, 168, 96, 0);
+            }
+        }
+
+        /* Sound toggle */
+        .sound-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--card);
+            border: 1.5px solid #e0dcd8;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            transition: all 0.15s;
+            z-index: 10;
+        }
+        .sound-toggle:active {
+            transform: scale(0.9);
+            background: #e8e4e0;
+        }
+        .sound-toggle.muted {
+            opacity: 0.5;
+        }
+
+        /* Stats bar */
+        .stats-bar {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .stat-chip {
+            background: var(--card);
+            padding: 7px 12px;
+            border-radius: 18px;
+            font-size: 11px;
             font-weight: 600;
             box-shadow: var(--shadow);
             display: flex;
             align-items: center;
-            gap: 5px;
-            border: 2px solid transparent;
-            transition: all 0.3s;
+            gap: 4px;
+            border: 1.5px solid #e8e4e0;
+            transition: all 0.2s;
         }
         .stat-chip:active {
-            transform: scale(0.95);
-        }
-        .stat-chip.pink {
-            border-color: var(--pink);
-        }
-        .stat-chip.purple {
-            border-color: var(--purple);
-        }
-        .stat-chip.mint {
-            border-color: var(--mint);
-        }
-        .stat-chip.blue {
-            border-color: var(--blue);
+            transform: scale(0.96);
+            background: var(--warm-light);
         }
         .stat-number {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 800;
-            color: var(--pink-dark);
+            color: var(--teal-dark);
         }
 
+        /* Utility bar */
+        .utility-bar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .utility-btn {
+            padding: 7px 14px;
+            border-radius: 18px;
+            border: 1.5px solid #e0dcd8;
+            background: var(--card);
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text);
+            transition: all 0.15s;
+            box-shadow: var(--shadow);
+            white-space: nowrap;
+        }
+        .utility-btn:active {
+            transform: scale(0.95);
+            background: #e8e4e0;
+            border-color: #ccc;
+        }
+        .utility-btn.accent {
+            background: var(--accent-light);
+            border-color: var(--accent);
+            color: #7a5520;
+        }
+
+        /* Search & Filter */
         .search-filter {
             display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
+            gap: 6px;
+            margin-bottom: 12px;
             flex-wrap: wrap;
         }
         .search-box {
-            flex: 2;
-            min-width: 180px;
+            flex: 3;
+            min-width: 160px;
             position: relative;
         }
         .search-box input {
             width: 100%;
-            padding: 12px 15px 12px 40px;
-            border: 2px solid var(--pink-light);
+            padding: 11px 14px 11px 36px;
+            border: 1.5px solid #e0dcd8;
             border-radius: var(--radius-sm);
             font-size: 14px;
-            background: white;
+            background: var(--card);
             color: var(--text);
-            transition: all 0.3s;
+            transition: all 0.2s;
             box-shadow: var(--shadow);
         }
         .search-box input:focus {
             outline: none;
-            border-color: var(--pink);
-            box-shadow: var(--shadow-hover);
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(92, 158, 158, 0.12);
         }
         .search-box .search-icon {
             position: absolute;
-            left: 14px;
+            left: 12px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 16px;
+            font-size: 15px;
+            pointer-events: none;
         }
         .filter-select {
             flex: 1;
-            min-width: 130px;
-            padding: 12px;
-            border: 2px solid var(--pink-light);
+            min-width: 110px;
+            padding: 10px 8px;
+            border: 1.5px solid #e0dcd8;
             border-radius: var(--radius-sm);
-            font-size: 13px;
-            background: white;
+            font-size: 12px;
+            background: var(--card);
             color: var(--text);
             box-shadow: var(--shadow);
             cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b6060' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 24px;
         }
         .filter-select:focus {
             outline: none;
-            border-color: var(--pink);
+            border-color: var(--teal);
         }
 
+        /* Add button */
         .add-btn {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--pink), var(--purple));
+            padding: 13px;
+            background: var(--teal-dark);
             color: white;
             border: none;
             border-radius: var(--radius);
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             cursor: pointer;
             box-shadow: var(--shadow);
-            transition: all 0.3s;
-            margin-bottom: 15px;
-            letter-spacing: 0.5px;
+            transition: all 0.15s;
+            margin-bottom: 14px;
+            letter-spacing: 0.3px;
         }
         .add-btn:active {
             transform: scale(0.97);
-            box-shadow: 0 2px 8px rgba(255, 184, 198, 0.3);
+            opacity: 0.85;
+            background: #1f3a3a;
         }
 
-        .manhwa-card {
+        /* Cards */
+        .entry-card {
             background: var(--card);
             border-radius: var(--radius);
-            padding: 15px;
-            margin-bottom: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
             box-shadow: var(--shadow);
-            transition: all 0.3s;
-            border: 2px solid transparent;
+            transition: all 0.15s;
+            border: 1.5px solid transparent;
             position: relative;
-            overflow: hidden;
-            animation: fadeInUp 0.4s ease;
+            animation: fadeInUp 0.35s ease;
+            will-change: transform;
         }
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(16px);
             }
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        .manhwa-card:active {
-            transform: scale(0.98);
+        .entry-card:active {
+            transform: scale(0.985);
         }
-        .manhwa-card.favorite {
-            border-color: var(--yellow);
-            background: #fffef9;
+        .entry-card.favorite {
+            border-color: #e8d5a0;
+            background: #fffef8;
         }
-        .manhwa-card .card-inner {
+        .entry-card .card-inner {
             display: flex;
-            gap: 14px;
+            gap: 12px;
+            align-items: flex-start;
         }
-        .manhwa-card .cover-img {
-            width: 80px;
-            height: 110px;
+        .entry-card .cover-img {
+            width: 72px;
+            height: 100px;
             border-radius: var(--radius-sm);
             object-fit: cover;
-            background: var(--pink-light);
+            background: #e8e4e0;
             flex-shrink: 0;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
+            font-size: 36px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.15s;
             position: relative;
+            overflow: hidden;
         }
-        .manhwa-card .cover-img:active {
-            transform: scale(1.05);
+        .entry-card .cover-img:active {
+            transform: scale(1.04);
         }
-        .manhwa-card .cover-img .change-cover-hint {
+        .entry-card .cover-img .cover-hint {
             position: absolute;
-            bottom: 5px;
-            font-size: 10px;
+            bottom: 3px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 9px;
             background: rgba(0, 0, 0, 0.5);
             color: white;
-            padding: 2px 6px;
-            border-radius: 10px;
+            padding: 2px 0;
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.2s;
         }
-        .manhwa-card .cover-img:active .change-cover-hint {
+        .entry-card .cover-img:active .cover-hint {
             opacity: 1;
         }
         .card-info {
@@ -283,189 +367,186 @@
         }
         .card-title {
             font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 4px;
-            color: #4a3a4a;
+            font-size: 15px;
+            margin-bottom: 3px;
+            color: #2d2525;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
+            word-break: break-word;
         }
         .card-title .fav-star {
-            color: #ffb347;
-            font-size: 16px;
-            cursor: pointer;
-            animation: sparkle 1.5s ease-in-out infinite;
-        }
-        @keyframes sparkle {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.3);
-            }
+            color: #e8a840;
+            font-size: 14px;
+            flex-shrink: 0;
         }
         .card-meta {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-light);
-            margin-bottom: 3px;
+            margin-bottom: 2px;
             display: flex;
             align-items: center;
             gap: 4px;
             flex-wrap: wrap;
         }
+        .card-meta .dot-sep {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: #c0b8b8;
+            display: inline-block;
+        }
 
+        /* Progress */
         .progress-wrap {
-            margin: 8px 0;
+            margin: 6px 0;
         }
         .progress-bar {
-            background: #f0e8f0;
-            height: 10px;
-            border-radius: 10px;
+            background: #e8e4e0;
+            height: 7px;
+            border-radius: 7px;
             overflow: hidden;
-            position: relative;
         }
         .progress-fill {
             height: 100%;
-            border-radius: 10px;
-            transition: width 0.5s ease;
-            background: linear-gradient(90deg, var(--pink), var(--purple));
-            position: relative;
-        }
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: 20px;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.4);
-            border-radius: 10px;
+            border-radius: 7px;
+            transition: width 0.4s ease;
+            background: linear-gradient(90deg, var(--teal), var(--mint));
         }
         .progress-text {
-            font-size: 11px;
-            color: var(--text-light);
-            margin-top: 3px;
+            font-size: 10px;
+            color: var(--warm-gray);
+            margin-top: 2px;
             text-align: right;
         }
 
+        /* Tags */
         .tag-row {
             display: flex;
             flex-wrap: wrap;
             gap: 4px;
-            margin: 6px 0;
+            margin: 5px 0;
         }
         .tag {
             font-size: 10px;
-            padding: 4px 10px;
-            border-radius: 12px;
+            padding: 3px 9px;
+            border-radius: 10px;
             font-weight: 600;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
         }
         .tag.ongoing {
-            background: #e0ffee;
-            color: #2d8a4e;
+            background: #d4ecec;
+            color: #2d5a4a;
         }
         .tag.finished {
-            background: #e0eeff;
-            color: #2d5a8a;
+            background: #d4e0ec;
+            color: #2d4a6a;
         }
         .tag.hiatus {
-            background: #fff3e0;
-            color: #8a6d2d;
+            background: #f0e8d4;
+            color: #6a5a2d;
         }
         .tag.dropped {
-            background: #ffe0e0;
-            color: #8a2d2d;
+            background: #ecd4d4;
+            color: #6a2d2d;
         }
         .tag.genre {
-            background: var(--purple-light);
-            color: #5a3d8a;
+            background: #e0dce8;
+            color: #4a3d6a;
         }
         .tag.priority-high {
-            background: #ffe0e0;
-            color: #d44;
+            background: #f0d4d4;
+            color: #a04040;
         }
         .tag.priority-medium {
-            background: #fff8e0;
-            color: #b88a20;
+            background: #f0ecd4;
+            color: #8a7a20;
         }
         .tag.priority-low {
-            background: #e0f0e0;
-            color: #4a8a4a;
+            background: #d4e8d4;
+            color: #3d6a3d;
         }
-        /* Type tags */
         .tag.manhwa {
-            background: #ffe0ee;
-            color: #c44a7a;
+            background: #e8dce8;
+            color: #6a3d6a;
         }
         .tag.manhua {
-            background: #ffe8d0;
-            color: #c4733a;
+            background: #f0e4d4;
+            color: #8a5a30;
         }
         .tag.manga {
-            background: #ffe0e0;
-            color: #c44a4a;
+            background: #f0d8d8;
+            color: #8a3030;
         }
 
+        /* Stars */
         .stars {
-            color: #ffb347;
-            font-size: 13px;
+            color: #e8a840;
+            font-size: 12px;
             letter-spacing: 1px;
         }
         .stars .empty {
-            color: #ddd;
+            color: #d8d4d0;
         }
 
+        /* Card actions */
         .card-actions {
             display: flex;
             gap: 5px;
-            margin-top: 8px;
+            margin-top: 7px;
             flex-wrap: wrap;
         }
         .btn-sm {
-            padding: 6px 12px;
+            padding: 6px 11px;
             border-radius: var(--radius-xs);
             border: none;
             font-size: 11px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
-            letter-spacing: 0.3px;
+            transition: all 0.12s;
+            letter-spacing: 0.2px;
+            min-height: 32px;
+            min-width: 44px;
         }
         .btn-sm:active {
             transform: scale(0.93);
+            opacity: 0.8;
         }
         .btn-edit {
-            background: var(--purple-light);
-            color: #5a3d8a;
+            background: #e0dce8;
+            color: #4a3d6a;
         }
         .btn-chapter {
-            background: var(--blue-light);
-            color: #2d5a8a;
+            background: #d4ecec;
+            color: #2d4a4a;
         }
         .btn-delete {
-            background: #ffe0e0;
-            color: #c44;
+            background: #f0d8d8;
+            color: #a04040;
         }
-        .btn-notes {
-            background: var(--mint-light);
-            color: #2d6a4e;
+        .btn-fav {
+            background: #fdf0e0;
+            color: #8a6020;
         }
 
+        /* Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            height: 100dvh;
+            background: rgba(0, 0, 0, 0.45);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 100;
-            padding: 20px;
+            z-index: 1000;
+            padding: 16px;
             animation: fadeIn 0.2s ease;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
         }
         @keyframes fadeIn {
             from {
@@ -476,19 +557,21 @@
             }
         }
         .modal {
-            background: white;
+            background: var(--card);
             border-radius: var(--radius);
-            padding: 20px;
+            padding: 18px;
             width: 100%;
-            max-width: 500px;
+            max-width: 480px;
             max-height: 85vh;
+            max-height: 85dvh;
             overflow-y: auto;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-            animation: slideUp 0.3s ease;
+            -webkit-overflow-scrolling: touch;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.25s ease;
         }
         @keyframes slideUp {
             from {
-                transform: translateY(30px);
+                transform: translateY(25px);
                 opacity: 0;
             }
             to {
@@ -498,121 +581,105 @@
         }
         .modal h3 {
             text-align: center;
-            margin-bottom: 15px;
-            font-size: 20px;
-            color: var(--pink-dark);
+            margin-bottom: 14px;
+            font-size: 18px;
+            color: var(--teal-dark);
+            font-weight: 700;
         }
         .modal .form-group {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
         .modal label {
             display: block;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: var(--text-light);
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 3px;
+            color: var(--warm-gray);
+            text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         .modal input,
         .modal select,
         .modal textarea {
             width: 100%;
-            padding: 10px 14px;
-            border: 2px solid var(--pink-light);
+            padding: 10px 12px;
+            border: 1.5px solid #e0dcd8;
             border-radius: var(--radius-xs);
             font-size: 14px;
             font-family: inherit;
             color: var(--text);
-            transition: all 0.3s;
+            transition: all 0.2s;
             background: #fefefe;
         }
         .modal input:focus,
         .modal select:focus,
         .modal textarea:focus {
             outline: none;
-            border-color: var(--pink);
-            box-shadow: 0 0 0 3px rgba(255, 184, 198, 0.15);
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(92, 158, 158, 0.1);
         }
         .modal textarea {
             resize: vertical;
-            min-height: 60px;
+            min-height: 55px;
         }
         .modal .cover-preview {
             width: 100%;
-            height: 140px;
+            height: 130px;
             border-radius: var(--radius-sm);
-            background: var(--pink-light);
+            background: #e8e4e0;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 50px;
+            font-size: 44px;
             object-fit: cover;
-            margin-bottom: 5px;
-            transition: all 0.3s;
+            margin-bottom: 4px;
+            transition: all 0.15s;
+            border: 2px dashed #d8d4d0;
         }
         .modal .cover-preview:active {
-            transform: scale(0.96);
+            transform: scale(0.97);
+            border-color: var(--teal);
         }
         .modal .btn-row {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 8px;
+            margin-top: 14px;
         }
         .modal .btn-row button {
             flex: 1;
-            padding: 12px;
+            padding: 11px;
             border-radius: var(--radius-xs);
             border: none;
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s;
-            letter-spacing: 0.5px;
+            transition: all 0.12s;
+            letter-spacing: 0.3px;
+            min-height: 44px;
         }
         .btn-save {
-            background: linear-gradient(135deg, var(--pink), var(--purple));
+            background: var(--teal-dark);
             color: white;
         }
         .btn-cancel {
-            background: #f0e8f0;
+            background: #e8e4e0;
             color: var(--text);
         }
         .btn-save:active,
         .btn-cancel:active {
             transform: scale(0.95);
+            opacity: 0.8;
         }
 
-        .utility-bar {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .utility-btn {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 2px solid var(--pink-light);
-            background: white;
-            font-size: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            color: var(--text);
-            transition: all 0.2s;
-            box-shadow: var(--shadow);
-        }
-        .utility-btn:active {
-            transform: scale(0.95);
-            background: var(--pink-light);
-        }
-
+        /* Empty state */
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: 50px 20px;
+            color: var(--warm-gray);
         }
         .empty-state .empty-icon {
-            font-size: 80px;
+            font-size: 70px;
             animation: float 3s ease-in-out infinite;
         }
         @keyframes float {
@@ -621,66 +688,94 @@
                 transform: translateY(0);
             }
             50% {
-                transform: translateY(-10px);
+                transform: translateY(-8px);
             }
         }
         .empty-state p {
-            color: var(--text-light);
-            margin-top: 10px;
-            font-size: 15px;
+            margin-top: 8px;
+            font-size: 14px;
+            line-height: 1.5;
         }
 
-        #coverInput {
+        /* Save indicator */
+        .save-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--teal-dark);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            z-index: 500;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            box-shadow: var(--shadow-lg);
+        }
+        .save-indicator.show {
+            opacity: 1;
+        }
+
+        /* Hidden */
+        #coverInput,
+        #importInput {
             display: none;
         }
 
-        @media (max-width: 400px) {
-            .manhwa-card .card-inner {
-                gap: 10px;
-            }
-            .manhwa-card .cover-img {
-                width: 60px;
-                height: 85px;
-                font-size: 30px;
+        @media (max-width: 380px) {
+            .entry-card .cover-img {
+                width: 56px;
+                height: 78px;
+                font-size: 28px;
             }
             .card-title {
                 font-size: 14px;
             }
             .header h1 {
-                font-size: 22px;
+                font-size: 20px;
+            }
+            .add-btn {
+                font-size: 14px;
+                padding: 12px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
+    <div class="app-container" id="appContainer">
         <!-- Header -->
         <div class="header">
-            <div class="mascot">🐰</div>
+            <button class="sound-toggle" id="soundToggle" onclick="toggleSound()" title="Sound FX">🔊</button>
+            <div class="mascot">📚</div>
             <h1>My Binge List</h1>
-            <p class="subtitle">♡ Manhwa • Manhua • Manga tracker ♡</p>
+            <p class="subtitle">Manhwa · Manhua · Manga Tracker</p>
+            <div class="streak-badge" id="streakBadge" style="display:none">🔥 0 day streak</div>
         </div>
 
         <!-- Stats -->
         <div class="stats-bar">
-            <div class="stat-chip pink"><span>📚</span> Total: <span class="stat-number" id="totalCount">0</span></div>
-            <div class="stat-chip mint"><span>📖</span> Ongoing: <span class="stat-number" id="ongoingCount">0</span></div>
-            <div class="stat-chip blue"><span>✅</span> Finished: <span class="stat-number" id="finishedCount">0</span></div>
-            <div class="stat-chip purple"><span>⭐</span> Favorites: <span class="stat-number" id="favCount">0</span></div>
+            <div class="stat-chip"><span>📚</span> Total: <span class="stat-number" id="totalCount">0</span></div>
+            <div class="stat-chip"><span>📖</span> Ongoing: <span class="stat-number" id="ongoingCount">0</span></div>
+            <div class="stat-chip"><span>✅</span> Done: <span class="stat-number" id="finishedCount">0</span></div>
+            <div class="stat-chip"><span>⭐</span> Favs: <span class="stat-number" id="favCount">0</span></div>
         </div>
 
         <!-- Utility -->
         <div class="utility-bar">
-            <button class="utility-btn" onclick="exportData()">📤 Export Backup</button>
-            <button class="utility-btn" onclick="document.getElementById('importInput').click()">📥 Import Backup</button>
-            <input type="file" id="importInput" accept=".json" style="display:none" onchange="importData(event)">
+            <button class="utility-btn" onclick="exportData()">📤 Export</button>
+            <button class="utility-btn" onclick="document.getElementById('importInput').click()">📥 Import</button>
+            <button class="utility-btn accent" onclick="updateAllOngoing()">⚡ Update All Ongoing</button>
+            <input type="file" id="importInput" accept=".json" onchange="importData(event)">
         </div>
 
         <!-- Search & Filter -->
         <div class="search-filter">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="searchInput" placeholder="Search title or genre..." oninput="renderList()">
+                <input type="text" id="searchInput" placeholder="Search title or genre..." oninput="renderList()" autocomplete="off">
             </div>
             <select class="filter-select" id="typeFilter" onchange="renderList()">
                 <option value="all">🌏 All Types</option>
@@ -693,4 +788,813 @@
                 <option value="Ongoing">📖 Ongoing</option>
                 <option value="Finished">✅ Finished</option>
                 <option value="Hiatus">⏸️ Hiatus</option>
-                <option value="Dropped">❌
+                <option value="Dropped">❌ Dropped</option>
+            </select>
+            <select class="filter-select" id="sortBy" onchange="renderList()">
+                <option value="title">🔤 A-Z</option>
+                <option value="rating">⭐ Rating</option>
+                <option value="recent">🕐 Recent</option>
+                <option value="progress">📊 Progress</option>
+            </select>
+        </div>
+
+        <!-- Add Button -->
+        <button class="add-btn" onclick="playSound('open'); openAddModal()">＋ Add New Entry</button>
+
+        <!-- List -->
+        <div id="entryList"></div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+            <div class="empty-icon">📭</div>
+            <p>Your list is empty!<br>Tap <strong>"＋ Add New Entry"</strong> to start tracking ✨</p>
+        </div>
+    </div>
+
+    <!-- Save Indicator -->
+    <div class="save-indicator" id="saveIndicator">💾 Saved</div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay" style="display:none">
+        <div class="modal" id="modal">
+            <h3 id="modalTitle">＋ Add New Entry</h3>
+            <div class="form-group">
+                <label>📸 Cover Image (tap to upload)</label>
+                <img class="cover-preview" id="coverPreview" src="" alt="Tap to add cover" onclick="playSound('click'); document.getElementById('coverInput').click()">
+                <input type="file" id="coverInput" accept="image/*" onchange="handleCoverUpload(event)">
+            </div>
+            <div class="form-group">
+                <label>📚 Title *</label>
+                <input type="text" id="inputTitle" placeholder="Type the title here..." autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>🌏 Type</label>
+                <select id="inputType">
+                    <option value="Manhwa">🇰🇷 Manhwa (Korean)</option>
+                    <option value="Manhua">🇨🇳 Manhua (Chinese)</option>
+                    <option value="Manga">🇯🇵 Manga (Japanese)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>📖 Status</label>
+                <select id="inputStatus">
+                    <option value="Ongoing">📖 Ongoing</option>
+                    <option value="Finished">✅ Finished</option>
+                    <option value="Hiatus">⏸️ Hiatus</option>
+                    <option value="Dropped">❌ Dropped</option>
+                </select>
+            </div>
+            <div class="form-group" style="display:flex;gap:8px">
+                <div style="flex:1">
+                    <label>📄 Last Read Ch.</label>
+                    <input type="number" id="inputLastChapter" placeholder="0" min="0" inputmode="numeric">
+                </div>
+                <div style="flex:1">
+                    <label>📑 Total Chapters</label>
+                    <input type="number" id="inputTotalChapters" placeholder="?" min="0" inputmode="numeric">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>⭐ Rating (1-10)</label>
+                <input type="range" id="inputRating" min="0" max="10" value="0" oninput="updateRatingDisplay()" style="width:100%;accent-color:#e8a840">
+                <span id="ratingDisplay" style="font-size:17px;color:#e8a840">☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆</span>
+            </div>
+            <div class="form-group">
+                <label>🏷️ Genre Tags (comma separated)</label>
+                <input type="text" id="inputGenres" placeholder="e.g. Action, Romance, Fantasy" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>🔴 Priority</label>
+                <select id="inputPriority">
+                    <option value="Medium">🟡 Medium</option>
+                    <option value="High">🔴 High</option>
+                    <option value="Low">🟢 Low</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>📱 Source / Platform</label>
+                <input type="text" id="inputSource" placeholder="e.g. Webtoon, Tachiyomi, Kakao" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>📝 Notes</label>
+                <textarea id="inputNotes" placeholder="Any thoughts...?" rows="2"></textarea>
+            </div>
+            <div class="btn-row">
+                <button class="btn-cancel" onclick="playSound('close'); closeModal()">Cancel</button>
+                <button class="btn-save" onclick="playSound('save'); saveEntry()">💾 Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ══════════════════════════════════════
+        // 🎵 SOUND ENGINE (8-bit SFX)
+        // ══════════════════════════════════════
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+            }
+            // Resume if suspended (mobile requirement)
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+
+                switch (type) {
+                    case 'click':
+                        // Soft pop click
+                        playTone(ctx, now, 800, 0.05, 'sine', 0.15);
+                        break;
+
+                    case 'open':
+                        // Rising cheerful chirp
+                        playTone(ctx, now, 600, 0.06, 'sine', 0.2);
+                        playTone(ctx, now + 0.06, 900, 0.08, 'sine', 0.18);
+                        break;
+
+                    case 'close':
+                        // Falling gentle tone
+                        playTone(ctx, now, 500, 0.06, 'sine', 0.15);
+                        playTone(ctx, now + 0.05, 350, 0.08, 'sine', 0.12);
+                        break;
+
+                    case 'save':
+                        // Happy success chime
+                        playTone(ctx, now, 523, 0.1, 'sine', 0.2);
+                        playTone(ctx, now + 0.1, 659, 0.1, 'sine', 0.2);
+                        playTone(ctx, now + 0.2, 784, 0.15, 'sine', 0.25);
+                        break;
+
+                    case 'chapter':
+                        // Page flip swoosh
+                        playNoise(ctx, now, 0.08, 0.1);
+                        playTone(ctx, now + 0.02, 1000, 0.04, 'triangle', 0.1);
+                        break;
+
+                    case 'favorite':
+                        // Sparkle twinkle
+                        playTone(ctx, now, 1200, 0.06, 'sine', 0.15);
+                        playTone(ctx, now + 0.06, 1600, 0.08, 'sine', 0.18);
+                        playTone(ctx, now + 0.12, 2000, 0.06, 'sine', 0.12);
+                        break;
+
+                    case 'delete':
+                        // Gentle thud
+                        playTone(ctx, now, 200, 0.12, 'triangle', 0.2);
+                        playTone(ctx, now, 150, 0.15, 'sine', 0.15);
+                        break;
+
+                    case 'updateAll':
+                        // Multiple rapid page flips
+                        for (let i = 0; i < 4; i++) {
+                            playTone(ctx, now + i * 0.05, 600 + i * 200, 0.04, 'triangle', 0.08);
+                        }
+                        playTone(ctx, now + 0.2, 1000, 0.1, 'sine', 0.15);
+                        break;
+
+                    case 'export':
+                        // Success fanfare
+                        playTone(ctx, now, 440, 0.1, 'sine', 0.2);
+                        playTone(ctx, now + 0.1, 554, 0.1, 'sine', 0.2);
+                        playTone(ctx, now + 0.2, 659, 0.1, 'sine', 0.2);
+                        playTone(ctx, now + 0.3, 880, 0.2, 'sine', 0.3);
+                        break;
+
+                    case 'import':
+                        // Data receiving blips
+                        playTone(ctx, now, 300, 0.04, 'square', 0.06);
+                        playTone(ctx, now + 0.06, 400, 0.04, 'square', 0.06);
+                        playTone(ctx, now + 0.12, 500, 0.04, 'square', 0.06);
+                        playTone(ctx, now + 0.18, 700, 0.08, 'sine', 0.12);
+                        break;
+
+                    case 'cover':
+                        // Camera shutter
+                        playNoise(ctx, now, 0.04, 0.08);
+                        playTone(ctx, now + 0.02, 1500, 0.03, 'triangle', 0.06);
+                        break;
+
+                    case 'streak':
+                        // Achievement jingle
+                        const notes = [523, 659, 784, 1047];
+                        notes.forEach((freq, i) => {
+                            playTone(ctx, now + i * 0.1, freq, 0.12, 'sine', 0.2);
+                        });
+                        break;
+
+                    default:
+                        // Generic soft click
+                        playTone(ctx, now, 600, 0.04, 'sine', 0.1);
+                }
+            } catch (e) {
+                // Silently fail if audio isn't available
+            }
+        }
+
+        function playTone(ctx, startTime, frequency, duration, waveType, volume) {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = waveType;
+            osc.frequency.setValueAtTime(frequency, startTime);
+
+            gain.gain.setValueAtTime(volume, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+        }
+
+        function playNoise(ctx, startTime, duration, volume) {
+            const bufferSize = ctx.sampleRate * duration;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            const source = ctx.createBufferSource();
+            const gain = ctx.createGain();
+            source.buffer = buffer;
+
+            gain.gain.setValueAtTime(volume, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+            source.connect(gain);
+            gain.connect(ctx.destination);
+            source.start(startTime);
+            source.stop(startTime + duration);
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('soundToggle');
+            if (soundEnabled) {
+                btn.textContent = '🔊';
+                btn.classList.remove('muted');
+                // Initialize audio context on user interaction
+                getAudioContext();
+                playSound('click');
+            } else {
+                btn.textContent = '🔇';
+                btn.classList.add('muted');
+            }
+        }
+
+        // ══════════════════════════════════════
+        // 📦 DATA STORAGE
+        // ══════════════════════════════════════
+        const STORAGE_KEY = 'bingeListV4';
+        const STREAK_KEY = 'bingeStreak';
+        let entryList = [];
+        let editingIndex = -1;
+        let tempCoverData = null;
+        let autoSaveInterval = null;
+        let lastSaveTime = 0;
+
+        function loadData() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) entryList = JSON.parse(raw);
+            } catch (e) {
+                entryList = [];
+            }
+            entryList.sort((a, b) => a.title.localeCompare(b.title));
+        }
+
+        function saveData(silent = false) {
+            const now = Date.now();
+            if (now - lastSaveTime < 500 && silent) return;
+            lastSaveTime = now;
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(entryList));
+            updateStats();
+            updateStreak();
+
+            if (!silent) showSaveIndicator();
+        }
+
+        function showSaveIndicator() {
+            const indicator = document.getElementById('saveIndicator');
+            indicator.classList.add('show');
+            clearTimeout(indicator._timeout);
+            indicator._timeout = setTimeout(() => indicator.classList.remove('show'), 1500);
+        }
+
+        // ══════════════════════════════════════
+        // 🔥 STREAK TRACKING
+        // ══════════════════════════════════════
+        function updateStreak() {
+            const today = new Date().toDateString();
+            let streakData = { lastDate: today, count: 0 };
+
+            try {
+                const raw = localStorage.getItem(STREAK_KEY);
+                if (raw) streakData = JSON.parse(raw);
+            } catch (e) {}
+
+            const lastDate = new Date(streakData.lastDate);
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const oldCount = streakData.count;
+
+            if (today === streakData.lastDate) {
+                // Already logged today
+            } else if (lastDate.toDateString() === yesterday.toDateString()) {
+                streakData.count++;
+                streakData.lastDate = today;
+            } else {
+                streakData.count = 1;
+                streakData.lastDate = today;
+            }
+
+            localStorage.setItem(STREAK_KEY, JSON.stringify(streakData));
+
+            const badge = document.getElementById('streakBadge');
+            if (streakData.count > 0) {
+                badge.style.display = 'inline-block';
+                badge.textContent = `🔥 ${streakData.count} day streak!`;
+                // Play streak sound when it increments
+                if (streakData.count > oldCount && oldCount > 0) {
+                    playSound('streak');
+                }
+            }
+        }
+
+        // ══════════════════════════════════════
+        // 📊 STATS
+        // ══════════════════════════════════════
+        function updateStats() {
+            document.getElementById('totalCount').textContent = entryList.length;
+            document.getElementById('ongoingCount').textContent = entryList.filter(e => e.status === 'Ongoing').length;
+            document.getElementById('finishedCount').textContent = entryList.filter(e => e.status === 'Finished').length;
+            document.getElementById('favCount').textContent = entryList.filter(e => e.favorite).length;
+        }
+
+        // ══════════════════════════════════════
+        // 🎨 RENDER HELPERS
+        // ══════════════════════════════════════
+        function getProgressPercent(e) {
+            if (!e.totalChapters || e.totalChapters === 0) return 0;
+            return Math.min(100, Math.round((e.lastChapter / e.totalChapters) * 100));
+        }
+
+        function renderStars(rating) {
+            let html = '';
+            for (let i = 1; i <= 10; i++) {
+                html += i <= rating ? '★' : '<span class="empty">☆</span>';
+            }
+            return html;
+        }
+
+        function getStatusClass(s) {
+            return { 'Ongoing': 'ongoing', 'Finished': 'finished', 'Hiatus': 'hiatus', 'Dropped': 'dropped' } [s] || 'ongoing';
+        }
+
+        function getTypeClass(t) {
+            return { 'Manhwa': 'manhwa', 'Manhua': 'manhua', 'Manga': 'manga' } [t] || 'manhwa';
+        }
+
+        function getTypeFlag(t) {
+            return { 'Manhwa': '🇰🇷', 'Manhua': '🇨🇳', 'Manga': '🇯🇵' } [t] || '📚';
+        }
+
+        function getPriorityClass(p) {
+            return { 'High': 'priority-high', 'Medium': 'priority-medium', 'Low': 'priority-low' } [p] || 'priority-medium';
+        }
+
+        function getStatusEmoji(s) {
+            return { 'Ongoing': '📖', 'Finished': '✅', 'Hiatus': '⏸️', 'Dropped': '❌' } [s] || '📚';
+        }
+
+        // ══════════════════════════════════════
+        // 📋 RENDER LIST
+        // ══════════════════════════════════════
+        function renderList() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+
+            let filtered = [...entryList];
+
+            if (searchTerm) {
+                filtered = filtered.filter(e =>
+                    e.title.toLowerCase().includes(searchTerm) ||
+                    (e.genres && e.genres.toLowerCase().includes(searchTerm)) ||
+                    (e.notes && e.notes.toLowerCase().includes(searchTerm)) ||
+                    (e.source && e.source.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            if (statusFilter !== 'all') filtered = filtered.filter(e => e.status === statusFilter);
+            if (typeFilter !== 'all') filtered = filtered.filter(e => e.type === typeFilter);
+
+            switch (sortBy) {
+                case 'title':
+                    filtered.sort((a, b) => a.title.localeCompare(b.title));
+                    break;
+                case 'rating':
+                    filtered.sort((a, b) => b.rating - a.rating);
+                    break;
+                case 'recent':
+                    filtered.sort((a, b) => new Date(b.lastReadDate || b.dateAdded || 0) - new Date(a.lastReadDate || a.dateAdded || 0));
+                    break;
+                case 'progress':
+                    filtered.sort((a, b) => getProgressPercent(b) - getProgressPercent(a));
+                    break;
+            }
+
+            const container = document.getElementById('entryList');
+            const emptyState = document.getElementById('emptyState');
+
+            if (filtered.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+                container.innerHTML = filtered.map((entry) => {
+                    const realIndex = entryList.indexOf(entry);
+                    const progress = getProgressPercent(entry);
+                    const genres = entry.genres ? entry.genres.split(',').map(g => g.trim()).filter(g => g) : [];
+                    const lastReadDate = entry.lastReadDate ? new Date(entry.lastReadDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short',
+                        year: 'numeric' }) : '';
+
+                    return `
+                    <div class="entry-card ${entry.favorite ? 'favorite' : ''}">
+                        <div class="card-inner">
+                            <div class="cover-img" onclick="playSound('cover'); changeCoverDirect(${realIndex})" style="${entry.coverData ? `background-image:url(${entry.coverData});background-size:cover;background-position:center` : ''}">
+                                ${!entry.coverData ? '📸' : ''}
+                                <span class="cover-hint">tap</span>
+                            </div>
+                            <div class="card-info">
+                                <div class="card-title">
+                                    ${entry.favorite ? '<span class="fav-star">⭐</span>' : ''}
+                                    ${escapeHTML(entry.title)}
+                                </div>
+                                <div class="card-meta">
+                                    <span class="tag ${getTypeClass(entry.type)}">${getTypeFlag(entry.type)} ${entry.type}</span>
+                                    <span class="tag ${getStatusClass(entry.status)}">${getStatusEmoji(entry.status)} ${entry.status}</span>
+                                    ${entry.priority !== 'Medium' ? `<span class="tag ${getPriorityClass(entry.priority)}">${entry.priority}</span>` : ''}
+                                </div>
+                                <div class="progress-wrap">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width:${progress}%"></div>
+                                    </div>
+                                    <div class="progress-text">Ch. ${entry.lastChapter || 0} / ${entry.totalChapters || '?'} (${progress}%)</div>
+                                </div>
+                                ${entry.rating > 0 ? `<div class="stars">${renderStars(entry.rating)} <span style="font-size:10px;color:var(--warm-gray)">${entry.rating}/10</span></div>` : ''}
+                                ${genres.length > 0 ? `<div class="tag-row">${genres.map(g => `<span class="tag genre">${escapeHTML(g)}</span>`).join('')}</div>` : ''}
+                                ${entry.source ? `<div style="font-size:10px;color:var(--warm-gray)">📱 ${escapeHTML(entry.source)}</div>` : ''}
+                                ${entry.notes ? `<div style="font-size:10px;color:var(--text-light);margin-top:3px;font-style:italic">💬 ${escapeHTML(entry.notes.substring(0, 50))}${entry.notes.length > 50 ? '...' : ''}</div>` : ''}
+                                ${lastReadDate ? `<div style="font-size:9px;color:#b0a8a8;margin-top:2px">🕐 ${lastReadDate}</div>` : ''}
+                                <div class="card-actions">
+                                    <button class="btn-sm btn-chapter" onclick="playSound('chapter'); quickAddChapter(${realIndex})">📄 +1 Ch</button>
+                                    <button class="btn-sm btn-edit" onclick="playSound('click'); openEditModal(${realIndex})">✏️</button>
+                                    <button class="btn-sm btn-fav" onclick="playSound('favorite'); toggleFavorite(${realIndex})">${entry.favorite ? '💛' : '🤍'}</button>
+                                    <button class="btn-sm btn-delete" onclick="playSound('delete'); deleteEntry(${realIndex})">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+            updateStats();
+        }
+
+        function escapeHTML(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ══════════════════════════════════════
+        // ⚡ ACTIONS
+        // ══════════════════════════════════════
+        function quickAddChapter(index) {
+            const entry = entryList[index];
+            entry.lastChapter = (entry.lastChapter || 0) + 1;
+            entry.lastReadDate = new Date().toISOString();
+            if (entry.totalChapters && entry.lastChapter > entry.totalChapters) {
+                entry.totalChapters = entry.lastChapter;
+            }
+            saveData();
+            renderList();
+        }
+
+        function toggleFavorite(index) {
+            entryList[index].favorite = !entryList[index].favorite;
+            saveData();
+            renderList();
+        }
+
+        function deleteEntry(index) {
+            if (confirm(`Delete "${entryList[index].title}"? This cannot be undone.`)) {
+                entryList.splice(index, 1);
+                saveData();
+                renderList();
+            }
+        }
+
+        function updateAllOngoing() {
+            const ongoing = entryList.filter(e => e.status === 'Ongoing');
+            if (ongoing.length === 0) {
+                alert('No ongoing entries to update!');
+                return;
+            }
+            if (confirm(`Add +1 chapter to all ${ongoing.length} ongoing entries?`)) {
+                playSound('updateAll');
+                ongoing.forEach(e => {
+                    e.lastChapter = (e.lastChapter || 0) + 1;
+                    e.lastReadDate = new Date().toISOString();
+                });
+                saveData();
+                renderList();
+                alert(`✅ Updated ${ongoing.length} entries!`);
+            }
+        }
+
+        function changeCoverDirect(index) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                playSound('cover');
+                resizeAndSetCover(file, (dataUrl) => {
+                    entryList[index].coverData = dataUrl;
+                    saveData();
+                    renderList();
+                });
+            };
+            input.click();
+        }
+
+        function resizeAndSetCover(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxW = 300,
+                        maxH = 420;
+                    let w = img.width,
+                        h = img.height;
+                    if (w > maxW) { h = h * (maxW / w);
+                        w = maxW; }
+                    if (h > maxH) { w = w * (maxH / h);
+                        h = maxH; }
+                    canvas.width = w;
+                    canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    callback(canvas.toDataURL('image/jpeg', 0.7));
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ══════════════════════════════════════
+        // 📝 MODAL
+        // ══════════════════════════════════════
+        function openAddModal() {
+            editingIndex = -1;
+            tempCoverData = null;
+            document.getElementById('modalTitle').textContent = '＋ Add New Entry';
+            resetModalFields();
+            document.getElementById('modalOverlay').style.display = 'flex';
+            setTimeout(() => document.getElementById('inputTitle').focus(), 300);
+        }
+
+        function openEditModal(index) {
+            editingIndex = index;
+            const e = entryList[index];
+            tempCoverData = e.coverData || null;
+            document.getElementById('modalTitle').textContent = '✏️ Edit Entry';
+            setCoverPreview(e.coverData);
+            document.getElementById('inputTitle').value = e.title;
+            document.getElementById('inputType').value = e.type || 'Manhwa';
+            document.getElementById('inputStatus').value = e.status;
+            document.getElementById('inputLastChapter').value = e.lastChapter || 0;
+            document.getElementById('inputTotalChapters').value = e.totalChapters || '';
+            document.getElementById('inputRating').value = e.rating || 0;
+            document.getElementById('inputGenres').value = e.genres || '';
+            document.getElementById('inputPriority').value = e.priority || 'Medium';
+            document.getElementById('inputSource').value = e.source || '';
+            document.getElementById('inputNotes').value = e.notes || '';
+            updateRatingDisplay();
+            document.getElementById('modalOverlay').style.display = 'flex';
+        }
+
+        function resetModalFields() {
+            document.getElementById('coverPreview').src = '';
+            document.getElementById('coverPreview').style.backgroundImage = '';
+            document.getElementById('coverPreview').style.border = '2px dashed #d8d4d0';
+            document.getElementById('inputTitle').value = '';
+            document.getElementById('inputType').value = 'Manhwa';
+            document.getElementById('inputStatus').value = 'Ongoing';
+            document.getElementById('inputLastChapter').value = '';
+            document.getElementById('inputTotalChapters').value = '';
+            document.getElementById('inputRating').value = 0;
+            document.getElementById('inputGenres').value = '';
+            document.getElementById('inputPriority').value = 'Medium';
+            document.getElementById('inputSource').value = '';
+            document.getElementById('inputNotes').value = '';
+            updateRatingDisplay();
+        }
+
+        function setCoverPreview(dataUrl) {
+            const preview = document.getElementById('coverPreview');
+            if (dataUrl) {
+                preview.src = dataUrl;
+                preview.style.backgroundImage = `url(${dataUrl})`;
+                preview.style.backgroundSize = 'cover';
+                preview.style.backgroundPosition = 'center';
+                preview.style.border = '2px solid var(--teal)';
+            } else {
+                preview.src = '';
+                preview.style.backgroundImage = '';
+                preview.style.border = '2px dashed #d8d4d0';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+            editingIndex = -1;
+            tempCoverData = null;
+        }
+
+        function handleCoverUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            playSound('click');
+            resizeAndSetCover(file, (dataUrl) => {
+                tempCoverData = dataUrl;
+                setCoverPreview(dataUrl);
+            });
+        }
+
+        function updateRatingDisplay() {
+            const rating = parseInt(document.getElementById('inputRating').value) || 0;
+            document.getElementById('ratingDisplay').textContent =
+                '★'.repeat(rating) + '☆'.repeat(10 - rating);
+        }
+
+        function saveEntry() {
+            const title = document.getElementById('inputTitle').value.trim();
+            if (!title) {
+                alert('⚠️ Please enter a title!');
+                document.getElementById('inputTitle').focus();
+                return;
+            }
+
+            const entry = {
+                title: title,
+                type: document.getElementById('inputType').value,
+                status: document.getElementById('inputStatus').value,
+                lastChapter: parseInt(document.getElementById('inputLastChapter').value) || 0,
+                totalChapters: parseInt(document.getElementById('inputTotalChapters').value) || 0,
+                rating: parseInt(document.getElementById('inputRating').value) || 0,
+                genres: document.getElementById('inputGenres').value.trim(),
+                priority: document.getElementById('inputPriority').value,
+                source: document.getElementById('inputSource').value.trim(),
+                notes: document.getElementById('inputNotes').value.trim(),
+                coverData: tempCoverData || null,
+                favorite: editingIndex >= 0 ? entryList[editingIndex].favorite : false,
+                dateAdded: editingIndex >= 0 ? entryList[editingIndex].dateAdded : new Date().toISOString(),
+                lastReadDate: editingIndex >= 0 ? entryList[editingIndex].lastReadDate : null,
+            };
+
+            if (editingIndex >= 0) {
+                entryList[editingIndex] = entry;
+            } else {
+                entryList.push(entry);
+            }
+
+            entryList.sort((a, b) => a.title.localeCompare(b.title));
+            saveData();
+            closeModal();
+            renderList();
+        }
+
+        // ══════════════════════════════════════
+        // 📤📥 EXPORT / IMPORT
+        // ══════════════════════════════════════
+        function exportData() {
+            playSound('export');
+            const data = JSON.stringify(entryList, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'binge-list-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert('✅ Backup saved to Downloads folder!');
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!confirm('⚠️ Import will REPLACE your current list. Continue?')) {
+                event.target.value = '';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data)) {
+                        playSound('import');
+                        entryList = data;
+                        entryList.sort((a, b) => a.title.localeCompare(b.title));
+                        saveData();
+                        renderList();
+                        alert('✅ Import successful!');
+                    } else {
+                        alert('❌ Invalid backup file!');
+                    }
+                } catch (err) {
+                    alert('❌ Error reading file!');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // ══════════════════════════════════════
+        // 🚀 INITIALIZATION
+        // ══════════════════════════════════════
+        function init() {
+            loadData();
+            updateStreak();
+            renderList();
+
+            // Auto-save every 5 seconds
+            autoSaveInterval = setInterval(() => {
+                saveData(true);
+            }, 5000);
+
+            // Save on page unload
+            window.addEventListener('beforeunload', () => saveData(true));
+
+            // Save when app goes to background (mobile)
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) saveData(true);
+            });
+
+            // Close modal on overlay tap
+            document.getElementById('modalOverlay').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    playSound('close');
+                    closeModal();
+                }
+            });
+
+            // Keyboard shortcut
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && document.getElementById('modalOverlay').style.display === 'flex') {
+                    playSound('close');
+                    closeModal();
+                }
+            });
+
+            // Load sound preference
+            const savedSound = localStorage.getItem('bingeSoundEnabled');
+            if (savedSound === 'false') {
+                soundEnabled = false;
+                document.getElementById('soundToggle').textContent = '🔇';
+                document.getElementById('soundToggle').classList.add('muted');
+            }
+
+            console.log('📚🎵 Binge List ready! SFX active. Offline capable.');
+        }
+
+        // Save sound preference
+        const origToggleSound = toggleSound;
+        toggleSound = function() {
+            origToggleSound();
+            localStorage.setItem('bingeSoundEnabled', soundEnabled);
+        };
+
+        init();
+    </script>
+</body>
+</html>
